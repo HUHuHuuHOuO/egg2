@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BA%AB%E6%B3%892.png">
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%B5%81%E5%BF%832.png">
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BA%8F%E5%BF%83.png">
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%81%8F%E7%86%9F2.png">
+    <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%81%8E%E7%86%9F.png">
+    <script>
+        (function () {
+            var bridgeNames = ['ToutiaoJSBridge', 'BDXBridge'];
+            bridgeNames.forEach(function (bridgeName) {
+                delete window[bridgeName];
+                Object.defineProperty(window, bridgeName, {
+                    configurable: false,
+                    enumerable: false,
+                    get: function get() { return undefined; },
+                    set: function set(_) {},
+                });
+            });
+        })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>完美煮蛋定時器 - 國際防當機版</title>
+    <script src="https://marscode-static.doubaocdn.com/_lib/app-main.js"></script>
+    <link href="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@fontsource/nunito@latest/index.css" rel="stylesheet" />
+    <script src="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@tailwindcss/browser@3.4.17/dist/index.global.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { bg: '#FDFBF7', yolk: '#FFB300', text: '#4A4A4A', shadow: '#D1CFC7' },
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                },
+            },
+        };
+    </script>
+    <script src="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/lucide@0.560.0/dist/umd/lucide.min.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body { background-color: #e5e5e5; min-height: 100vh; margin: 0; font-family: 'Nunito', sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        #app-shell { background-color: #fdfbf7; width: 100%; height: 100vh; height: 100dvh; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        @media (min-width: 1025px) { body { display: flex; justify-content: center; align-items: center; } #app-shell { width: 480px; height: 640px; border-radius: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 8px solid #fdfbf7; } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .neu-flat { background: #fdfbf7; box-shadow: 6px 6px 12px #d1cfc7, -6px -6px 12px #ffffff; border-radius: 16px; }
+        .neu-pressed { background: #fdfbf7; box-shadow: inset 4px 4px 8px #d1cfc7, inset -4px -4px 8px #ffffff; border-radius: 16px; }
+        .neu-btn:active:not(:disabled) { box-shadow: inset 3px 3px 6px #d1cfc7, inset -3px -3px 6px #ffffff; transform: scale(0.95); }
+        .neu-primary { background: linear-gradient(145deg, #ffc107, #ffb300); box-shadow: 6px 6px 12px #d99800, -6px -6px 12px #ffeeb3; color: white; }
+        .progress-ring__circle { transform: rotate(-90deg); transform-origin: 50% 50%; }
+        @keyframes bg-flash { 0%, 100% { background-color: #fdfbf7; } 50% { background-color: #ffe0b2; } }
+        .alarm-state { animation: bg-flash 1s infinite; }
+        @keyframes bg-flash-blue { 0%, 100% { background-color: #fdfbf7; } 50% { background-color: #bfdbfe; } }
+        .alarm-state-blue { animation: bg-flash-blue 1s infinite; }
+        .egg-figure-preview { width: 44px; height: 58px; object-fit: cover; border-radius: 26px; border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .selected-egg { border-color: #ffb300; transform: scale(1.15); box-shadow: 0 10px 15px -3px rgba(255, 179, 0, 0.3); background: white; }
+        #doneness-container { display: flex; justify-content: center; align-items: center; gap: 0.75rem; min-width: 100%; }
+        .real-egg-shape { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: linear-gradient(135deg, #fff9f0 0%, #f7e8d0 100%); position: relative; box-shadow: inset -4px -6px 12px rgba(0, 0, 0, 0.05), 2px 4px 8px rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
+        button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; }
+        .pointer-events-none { pointer-events: none; }
+
+        /* 🌟 阿嬤特製：通用按鈕邊框效果 (首頁設定/食譜按鈕、問號按鈕通用) 🌟 */
+        .header-action-btn {
+            border: 2px solid transparent; /* 預設透明邊框，避免畫面跳動 */
+            transition: all 0.2s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .header-action-btn:hover {
+                border-color: #FFB300;
+                color: #FFB300;
+            }
+        }
+        .header-action-btn:active {
+            border-color: #FFB300;
+            color: #FFB300;
+            transform: scale(0.95);
+        }
+
+        /* 🌟 阿嬤特製：食譜卡片的專屬邊框效果 🌟 */
+        .recipe-card {
+            border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .recipe-card:hover {
+                border-color: #FFB300;
+            }
+        }
+        .recipe-card:active {
+            border-color: #FFB300;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div id="app-shell">
+        <header class="pt-6 px-6 flex-none flex justify-between items-center z-20">
+            <h1 class="text-xl font-black tracking-wider text-gray-600" data-i18n="appTitle">完美鷄蛋</h1>
+            <div class="flex gap-2">
+                <button onclick="openSettings()" class="neu-flat header-action-btn px-3 py-2 flex items-center gap-1.5 text-gray-500">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <span class="text-[11px] font-bold tracking-wider" data-i18n="settings">設定</span>
+                </button>
+                <button onclick="openRecipeCollection()" class="neu-flat header-action-btn px-3 py-2 flex items-center gap-1.5 text-gray-500">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span class="text-[11px] font-bold tracking-wider" data-i18n="moreRecipes">更多蛋料理</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4 pb-4 relative w-full">
+            <div id="settings-panel" class="space-y-6 transition-all duration-500">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="neu-flat p-3 flex flex-col items-center justify-center cursor-pointer neu-btn h-24" onclick="toggleTemp()">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider" data-i18n="initTemp">初始溫度</span>
+                        <div class="flex items-center gap-2 text-yolk font-bold mt-1">
+                            <i id="icon-temp" data-lucide="snowflake" class="w-6 h-6"></i>
+                            <span id="text-temp" class="text-lg" data-i18n="fridge">冷藏</span>
+                        </div>
+                    </div>
+                    <div class="neu-flat p-3 flex flex-col items-center justify-center cursor-pointer neu-btn h-24" onclick="toggleSizeDetail()">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider" data-i18n="eggSize">雞蛋規格</span>
+                        <div class="flex items-center gap-2 text-yolk font-bold mt-1">
+                            <span id="text-size-main" class="text-2xl uppercase">M</span>
+                            <span id="text-size-sub" class="text-sm text-gray-400">(53-63g)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="neu-flat p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider" data-i18n="stoveWatt">爐灶瓦數</span>
+                        <span id="wattage-display" class="text-xs font-bold text-yolk bg-yolk/10 px-2 py-1 rounded">2000W</span>
+                    </div>
+                    <input type="range" min="1000" max="3000" step="100" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-yolk" oninput="updateWattage(this.value)">
+                </div>
+
+                <div class="space-y-3">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1" data-i18n="targetDoneness">目標熟度</span>
+                    <div class="neu-pressed py-6 px-2 overflow-x-auto hide-scrollbar">
+                        <div id="doneness-container"></div>
+                    </div>
+                    <div class="text-center h-14 flex flex-col justify-center">
+                        <h2 id="doneness-big-title" class="text-2xl font-black text-yolk">溏心 (Jammy)</h2>
+                        <p id="doneness-sub-desc" class="text-xs text-gray-400">蛋黃呈膏狀，中心微流</p>
+                    </div>
+                    <div id="tips-panel" class="px-1 mt-4"></div>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-center gap-3 relative w-full">
+                <button id="btn-minus" disabled class="neu-flat w-12 h-12 rounded-full flex items-center justify-center text-gray-400 opacity-50 cursor-not-allowed transition-all duration-300 shrink-0 neu-btn">
+                    <i data-lucide="minus" class="w-6 h-6 pointer-events-none"></i>
+                </button>
+                
+                <div class="relative w-64 h-64 flex items-center justify-center shrink-0">
+                    <svg id="timer-svg" class="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 140 140">
+                        <circle class="text-gray-200" stroke-width="6" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" />
+                        <circle id="progress-ring" class="progress-ring__circle text-yolk" stroke-width="6" stroke-linecap="round" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" style="color: #FFB300;" />
+                        <circle id="overtime-ring" class="progress-ring__circle opacity-0" stroke-width="6" stroke-linecap="round" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" style="color: #60A5FA;" />
+                    </svg>
+
+                    <div id="tracker-container" class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center origin-center" style="transition: transform 0.1s linear;">
+                        <div class="absolute" style="transform: translateY(-117px);">
+                            <div id="tracker-icon-bg" class="bg-white rounded-full p-[4px] border-2 shadow-md flex items-center justify-center" style="transition: transform 0.1s linear, border-color 0.2s ease, color 0.2s ease;">
+                                <i data-lucide="flame" id="tracker-icon-flame" class="w-4 h-4"></i>
+                                <i data-lucide="snowflake" id="tracker-icon-snow" class="w-4 h-4 hidden"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center z-10 text-center">
+                        <div id="timer-display" class="text-6xl font-black text-gray-700 tracking-tighter tabular-nums transition-colors duration-300">06:30</div>
+                        <div id="timer-status" class="text-xs font-bold text-yolk mt-3 bg-white/80 px-4 py-1.5 rounded-full backdrop-blur-sm shadow-sm transition-all duration-300">水開後放入</div>
+                    </div>
+                </div>
+
+                <button id="btn-plus" disabled class="neu-flat w-12 h-12 rounded-full flex items-center justify-center text-gray-400 opacity-50 cursor-not-allowed transition-all duration-300 shrink-0 neu-btn">
+                    <i data-lucide="plus" class="w-6 h-6 pointer-events-none"></i>
+                </button>
+            </div>
+        </main>
+
+        <div id="settings-modal" class="absolute inset-0 z-[70] bg-black/50 hidden items-center justify-center transition-opacity duration-300 opacity-0 px-6">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 flex flex-col transform scale-95 transition-transform duration-300 shadow-2xl" id="settings-modal-content">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+                    <h3 class="font-black text-xl text-gray-800 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-6 h-6 text-yolk"></i> <span data-i18n="settingsTitle">設定</span>
+                    </h3>
+                    <button onclick="closeSettings()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 header-action-btn">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-500 mb-3 flex items-center gap-2">
+                            <i data-lucide="globe" class="w-4 h-4"></i> <span data-i18n="language">語言 (Language)</span>
+                        </h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="changeLanguage('tw')" id="btn-lang-tw" class="lang-btn py-2 rounded-xl text-xs font-bold border-2 border-yolk bg-yolk/10 text-yolk">繁體中文</button>
+                            <button onclick="changeLanguage('yue')" id="btn-lang-yue" class="lang-btn py-2 rounded-xl text-xs font-bold border-2 border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100">粵語</button>
+                            <button onclick="changeLanguage('en')" id="btn-lang-en" class="lang-btn py-2 rounded-xl text-xs font-bold border-2 border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100">English</button>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-gray-100">
+                        <button onclick="triggerIceWaterTest()" class="w-full neu-flat p-4 rounded-xl flex items-center justify-center gap-2 text-blue-500 font-bold active:scale-95 transition-transform bg-blue-50 hover:bg-blue-100">
+                            <i data-lucide="bug-play" class="w-5 h-5"></i>
+                            <span data-i18n="testMode">🛠️ 測試：過冷水模式</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="size-modal-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[2px] z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleSizeDetail()"></div>
+        <div id="size-modal" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-50 p-8 shadow-2xl modal-closed transition-transform duration-300 transform translate-y-full">
+            <h3 class="text-center font-black text-gray-600 mb-8 tracking-widest uppercase text-sm" data-i18n="selectSizeModal">選擇雞蛋規格</h3>
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div onclick="selectSize('s')" class="size-option flex flex-col items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer"><div class="real-egg-shape border border-orange-100" style="width: 3.4rem; height: 4.4rem"></div><span class="font-black text-xl">S</span></div>
+                <div onclick="selectSize('m')" class="size-option flex flex-col items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer neu-pressed"><div class="real-egg-shape border border-orange-100" style="width: 3.9rem; height: 5.1rem; background: linear-gradient(135deg, #FFB300 0%, #FF8F00 100%);"></div><span class="font-black text-xl">M</span></div>
+                <div onclick="selectSize('l')" class="size-option flex flex-col items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer"><div class="real-egg-shape border border-orange-100" style="width: 4.4rem; height: 5.8rem"></div><span class="font-black text-xl">L</span></div>
+            </div>
+            <button onclick="toggleSizeDetail()" class="neu-primary w-full h-14 rounded-2xl font-bold tracking-widest active:scale-95 transition-transform" data-i18n="confirm">確認</button>
+        </div>
+
+        <div class="flex-none px-8 py-6 bg-bg z-30 shrink-0">
+            <button id="main-btn" onclick="toggleTimer()" class="neu-primary w-full h-16 rounded-2xl text-xl font-bold tracking-widest flex items-center justify-center gap-3 shadow-xl transition-all active:scale-95">
+                <i id="main-btn-icon" data-lucide="play" fill="currentColor"></i><span id="main-btn-text" data-i18n="startCooking">開始煮</span>
+            </button>
+        </div>
+
+        <div id="recipe-collection" class="absolute inset-0 z-[55] bg-bg hidden flex-col overflow-hidden">
+            <div class="pt-6 px-6 pb-4 flex items-center justify-between bg-bg/90 backdrop-blur sticky top-0 z-10">
+                <button onclick="closeRecipeCollection()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
+                <h2 class="text-lg font-black text-gray-700" data-i18n="recipeInspo">蛋料理靈感</h2>
+                <button onclick="openHelpModal()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 pb-20">
+                <div class="neu-flat p-3 flex items-center gap-3">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+                    <input type="text" id="search-input" data-i18n="searchPlaceholder" placeholder="搜尋食譜..." class="bg-transparent flex-1 outline-none text-sm text-gray-600" onclick="playClickSound()" oninput="searchRecipes(this.value)">
+                </div>
+                <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+                    <button onclick="filterRecipes('all')" class="filter-btn px-4 py-2 bg-yolk text-white rounded-full text-xs font-bold whitespace-nowrap shadow-md" data-i18n="all">全部</button>
+                    <button onclick="filterRecipes('chinese')" class="filter-btn px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold whitespace-nowrap shadow-sm border" data-i18n="chinese">中式</button>
+                    <button onclick="filterRecipes('western')" class="filter-btn px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold whitespace-nowrap shadow-sm border" data-i18n="western">西式</button>
+                    <button onclick="filterRecipes('japanese')" class="filter-btn px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold whitespace-nowrap shadow-sm border" data-i18n="japanese">日式</button>
+                    <button onclick="filterRecipes('korean')" class="filter-btn px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold whitespace-nowrap shadow-sm border" data-i18n="korean">韓式</button>
+                </div>
+                <div id="recipe-list" class="grid grid-cols-1 gap-4"></div>
+            </div>
+        </div>
+
+        <div id="recipe-detail-modal" class="absolute inset-0 z-[60] bg-black/50 hidden items-end justify-center transition-opacity duration-300 opacity-0">
+            <div class="bg-white w-full rounded-t-3xl h-[90vh] flex flex-col transform translate-y-full transition-transform duration-300" id="recipe-detail-content">
+                <div class="relative h-48 shrink-0">
+                    <img id="detail-image" src="" class="w-full h-full object-cover rounded-t-3xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-3xl"></div>
+                    <button onclick="closeRecipeDetail()" class="absolute top-4 right-4 w-10 h-10 bg-black/30 rounded-full flex items-center justify-center text-white header-action-btn"><i data-lucide="x"></i></button>
+                    <div class="absolute bottom-4 left-6 text-white">
+                        <span id="detail-tag" class="px-2 py-0.5 bg-yolk text-black text-[10px] font-bold rounded mb-2 inline-block"></span>
+                        <h2 id="detail-title" class="text-2xl font-black"></h2>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <p id="detail-desc" class="text-gray-600 text-sm"></p>
+                    <div class="neu-flat p-4 flex flex-col items-center justify-center gap-3 bg-gray-50 cursor-pointer" onclick="playRecipeVideo()">
+                        <div class="w-full aspect-video bg-black/10 rounded-xl flex items-center justify-center relative overflow-hidden group">
+                            <img id="detail-video-thumb" src="" class="w-full h-full object-cover opacity-80">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-14 h-14 bg-white/50 backdrop-blur rounded-full flex items-center justify-center transition-transform group-active:scale-90"><i data-lucide="play" class="w-6 h-6 text-yolk ml-1"></i></div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 font-bold" data-i18n="watchVideo">點擊觀看演示影片</p>
+                    </div>
+                    <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="shopping-basket" class="w-4 h-4 text-yolk"></i> <span data-i18n="ingredients">食材準備</span></h3><ul id="detail-ingredients" class="text-sm text-gray-600 grid grid-cols-2 gap-2"></ul></div>
+                    <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-yolk"></i> <span data-i18n="steps">烹飪步驟</span></h3><div id="detail-steps" class="text-sm text-gray-600 space-y-4"></div></div>
+                    
+                    <div class="neu-flat p-4 border-t-4 border-t-yolk mt-6 mb-8">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-yolk rounded-full flex items-center justify-center text-white"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                                <h3 class="font-bold text-gray-800" data-i18n="aiAssistant">智慧廚藝助手</h3>
+                            </div>
+                            <button onclick="toggleAIMode()" class="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                                <span id="mode-icon" class="text-sm">👨‍🍳</span>
+                                <span id="mode-text" data-i18n="chefMode">大廚模式</span>
+                                <i data-lucide="refresh-cw" class="w-3 h-3 ml-0.5 text-gray-400"></i>
+                            </button>
+                        </div>
+                        <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
+                        </div>
+                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar">
+                            <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
+                            <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="ai-input" data-i18n="inputPlaceholder" placeholder="輸入問題..." class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-yolk" onclick="playClickSound()" onkeypress="if(event.key === 'Enter') askAI()">
+                            <button onclick="askAI()" class="bg-yolk text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md" data-i18n="send">發送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="video-player-container" class="absolute inset-0 z-[80] bg-black/95 hidden flex-col items-center justify-center backdrop-blur-sm">
+            <button onclick="closeVideoPlayer()" class="absolute top-8 right-6 text-white w-12 h-12 flex items-center justify-center z-50 bg-white/20 rounded-full hover:bg-white/30 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div id="video-content-area" class="w-full aspect-video px-4 sm:px-8 max-w-3xl"></div>
+            <p id="video-player-title" class="text-white text-lg font-bold mt-6 tracking-widest"></p>
+        </div>
+
+        <div id="fake-video-player" class="absolute inset-0 z-[80] bg-gray-900 hidden flex-col items-center justify-center">
+            <button onclick="closeFakeVideoPlayer()" class="absolute top-8 right-6 text-white w-12 h-12 flex items-center justify-center z-50 bg-white/20 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div class="w-full aspect-video px-8">
+                <div class="w-full h-full bg-black rounded-xl relative flex items-center justify-center overflow-hidden">
+                    <img id="fake-video-thumb" src="" class="absolute inset-0 w-full h-full object-cover opacity-40">
+                    <div class="z-10 text-center text-white p-6">
+                        <i data-lucide="chef-hat" class="w-12 h-12 text-yolk mx-auto mb-4 animate-pulse"></i>
+                        <h3 id="fake-video-title" class="text-2xl font-bold mb-4"></h3>
+                        <p id="fake-video-step" class="text-lg text-yolk font-bold"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="finish-overlay" class="absolute inset-0 z-50 hidden flex-col items-center justify-center bg-yolk/95 text-white p-8 transition-colors duration-500">
+            <h2 id="finish-title" class="text-5xl font-black mb-2 tracking-wider" data-i18n="timeUp">時間到！</h2>
+            <div class="flex flex-col gap-4 mt-10 w-full max-w-[240px]">
+                <button id="btn-ice-water" onclick="startIceWater()" class="bg-blue-50 text-blue-500 px-6 py-4 rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-transform"><span class="text-2xl">❄️</span> <span data-i18n="ice3Min">冰鎮3分鐘</span></button>
+                <button id="btn-done" onclick="resetApp()" class="bg-white text-yolk px-6 py-4 rounded-2xl font-black shadow-xl active:scale-95 transition-transform" data-i18n="perfectDone">完美搞定</button>
+            </div>
+        </div>
+
+        <div id="help-modal" class="absolute inset-0 z-[70] bg-black/50 hidden items-center justify-center transition-opacity duration-300 opacity-0 px-6">
+            <div class="bg-white w-full max-h-[80vh] rounded-3xl p-6 flex flex-col transform scale-95 transition-transform duration-300 shadow-2xl" id="help-modal-content">
+                <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                    <h3 class="font-black text-xl text-gray-800 flex items-center gap-2">
+                        <i data-lucide="info" class="w-6 h-6 text-yolk"></i> <span data-i18n="helpTitle">使用說明</span>
+                    </h3>
+                    <button onclick="closeHelpModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 header-action-btn">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto hide-scrollbar text-sm text-gray-600 space-y-4 leading-relaxed" id="help-content">
+                </div>
+            </div>
+        </div>
+
+        <audio id="click-audio" src="https://github.com/HUHuHuuHOuO/click/raw/refs/heads/main/freesoundeffects-button-click-289742.mp3" preload="auto"></audio>
+        <audio id="alarm-audio" src="https://www.myinstants.com/media/sounds/alarm-clock-on-xiaomi.mp3" preload="auto" loop></audio>
+        <audio id="boiling-audio" src="https://github.com/HUHuHuuHOuO/click/raw/refs/heads/main/freesound_community-boiling-water-61271.mp3" preload="auto" loop></audio>
+        <audio id="ice-water-audio" src="https://github.com/HUHuHuuHOuO/click/raw/refs/heads/main/floraphonic-ice-water-shift-tall-glass-3-185137.mp3" preload="auto" loop></audio>
+        <audio id="countdown-audio" src="https://github.com/HUHuHuuHOuO/click/raw/refs/heads/main/kakaist-10sec-digital-countdown-sfx-319873.mp3" preload="auto"></audio>
+    </div>
+
+    <script>
+        window.playClickSound = () => {
+            try {
+                const baseAudio = document.getElementById('click-audio');
+                if (baseAudio) {
+                    const soundClone = baseAudio.cloneNode();
+                    soundClone.volume = 1.0;
+                    soundClone.play().catch(e => console.log('瀏覽器阻擋音效:', e));
+                }
+            } catch (e) {
+                console.log('音效發生錯誤:', e);
+            }
+        };
+
+        const I18N = {
+            tw: {
+                appTitle: "完美鷄蛋", moreRecipes: "更多蛋料理", settings: "設定", initTemp: "初始溫度", fridge: "冷藏", room: "室溫",
+                eggSize: "雞蛋規格", stoveWatt: "爐灶瓦數", targetDoneness: "目標熟度", startCooking: "開始煮", stopCooking: "停止",
+                cooking: "煮蛋中...", putInBoiling: "水開後放入", iceCooling: "冰水冷卻中...", coolingDone: "冷卻完成！", timeUp: "時間到！",
+                iceCoolDone: "冰鎮完成！", ice3Min: "冰鎮3分鐘", perfectDone: "完美搞定", confirm: "確認", recipeInspo: "蛋料理靈感",
+                searchPlaceholder: "搜尋食譜...", all: "全部", chinese: "中式", western: "西式", japanese: "日式", korean: "韓式",
+                watchVideo: "點擊觀看演示影片", ingredients: "食材準備", steps: "烹飪步驟", aiAssistant: "智慧廚藝助手", chefMode: "大廚模式",
+                grandmaMode: "阿嫲模式", joke: "😂 講個笑話", secret: "🤫 不敗秘訣", send: "發送", inputPlaceholder: "輸入問題...",
+                selectSizeModal: "選擇雞蛋規格", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷水模式",
+                noRecipes: "暫無相關食譜", helpTitle: "使用說明", aiWelcome: "我是你的蛋料理專家！有任何問題都可以問我喔！",
+                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！",
+                helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
+                    <p><b>🥚 關於食譜：</b><br>這裡收錄了多種精選蛋料理，點擊卡片即可查看詳細步驟與教學影片。若設備為首次使用該html網站 加載圖片可能會稍慢。</p>
+                    <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請您手動跳轉到youtube</p>
+                    <p><b>🤖 智慧廚藝助手(AI語氣版)：</b><br>在食譜詳情頁的底部，你可以詢問 AI 關於這道菜的烹飪技巧。點擊右上角的「大廚/阿嫲模式」按鈕，可以自由切換不同風格的助手！</p>
+                </div>
+                <p class="px-1 mt-4 text-gray-600"><b>🙏 感謝：</b><br>各大youtube教程影片提供者, 馬田, 豆包AI, Gemini, deepseek, cookpad......</p>`
+            },
+            en: {
+                appTitle: "Perfect Egg", moreRecipes: "Recipes", settings: "Settings", initTemp: "Init Temp", fridge: "Fridge", room: "Room",
+                eggSize: "Egg Size", stoveWatt: "Stove Wattage", targetDoneness: "Target Doneness", startCooking: "Start", stopCooking: "Stop",
+                cooking: "Cooking...", putInBoiling: "Put in boiling water", iceCooling: "Cooling...", coolingDone: "Cooling Done!", timeUp: "Time's Up!",
+                iceCoolDone: "Cooling Finished!", ice3Min: "Ice Water 3 Min", perfectDone: "Perfect!", confirm: "Confirm", recipeInspo: "Egg Recipes",
+                searchPlaceholder: "Search recipes...", all: "All", chinese: "Chinese", western: "Western", japanese: "Japanese", korean: "Korean",
+                watchVideo: "Watch Video", ingredients: "Ingredients", steps: "Steps", aiAssistant: "AI Chef Assistant", chefMode: "Chef Mode",
+                grandmaMode: "Granny Mode", joke: "😂 Tell a joke", secret: "🤫 Secret Tip", send: "Send", inputPlaceholder: "Ask a question...",
+                selectSizeModal: "Select Egg Size", settingsTitle: "Settings", language: "Language", testMode: "🛠️ Test: Ice Water Mode",
+                noRecipes: "No recipes found", helpTitle: "How to use", aiWelcome: "I am your egg expert! Ask me anything!",
+                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!",
+                helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
+                    <p><b>🥚 About Recipes:</b><br>Explore our curated list of egg recipes. Click the cards to view detailed steps and videos. (Images may load slightly slower on your first visit to this site.)</p>
+                    <p><b>🍳 Video Notice:</b><br>Some videos are sourced from YouTube. If they fail to play, please manually open them on YouTube.</p>
+                    <p><b>🤖 AI Assistant:</b><br>At the bottom of the recipe details page, you can ask the AI for cooking tips. Click the "Chef/Granny Mode" button in the top right to freely switch between different assistant styles!</p>
+                </div>
+                <p class="px-1 mt-4 text-gray-600"><b>🙏 Special Thanks:</b><br>Various YouTube tutorial creators, Martin, Doubao AI, Gemini, DeepSeek, Cookpad...</p>`
+            },
+            yue: {
+                appTitle: "完美雞蛋", moreRecipes: "更多蛋料理", settings: "設定", initTemp: "初始溫度", fridge: "雪櫃", room: "室溫",
+                eggSize: "雞蛋大細", stoveWatt: "爐頭火數", targetDoneness: "目標熟度", startCooking: "開始煮", stopCooking: "停",
+                cooking: "煮緊...", putInBoiling: "水滾後放入", iceCooling: "過緊冷河...", coolingDone: "搞掂！", timeUp: "夠鐘！",
+                iceCoolDone: "過完冷河！", ice3Min: "浸冰水3分鐘", perfectDone: "完美搞掂", confirm: "確定", recipeInspo: "蛋料理靈感",
+                searchPlaceholder: "搵食譜...", all: "全部", chinese: "中式", western: "西式", japanese: "日式", korean: "韓式",
+                watchVideo: "㩒呢度睇片", ingredients: "準備食材", steps: "點煮？", aiAssistant: "AI 廚藝助手", chefMode: "大廚模式",
+                grandmaMode: "阿婆模式", joke: "😂 講個笑話", secret: "🤫 必勝秘訣", send: "發送", inputPlaceholder: "問啲嘢啦...",
+                selectSizeModal: "雞蛋大細", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷河模式",
+                noRecipes: "暫時冇呢個食譜", helpTitle: "點用？", aiWelcome: "我係你嘅專屬廚神！有咩唔明即問即答！",
+                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！",
+                helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
+                    <p><b>🥚 關於食譜：</b><br>呢度有好多精選蛋料理，㩒D卡片就可以睇D步驟同片。如果設備係第一次用呢個html網站 加載ge圖片可能會比較慢。</p>
+                    <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請你高擡玉手手動跳轉到youtube</p>
+                    <p><b>🤖 廚藝助手：</b><br>喺食譜底可以問 AI 煮食ge小貼士，仲可以自由切換大廚/阿婆模式！</p>
+                </div>
+                <p class="px-1 mt-4 text-gray-600"><b>🙏 鳴謝：</b><br>各大youtube教程影片提供者, 馬田, 豆包AI, Gemini, deepseek, cookpad......</p>`
+            }
+        };
+
+        const STATE = { lang: 'tw', running: false, timeLeft: 390, totalTime: 390, doneness: 2, temp: 'fridge', size: 'm', wattage: 2000, iceWaterMode: false, currentMode: 'chef' };
+        const BASE_TIMES = [390, 450, 510, 570, 660, 750];
+        
+        const RESOURCE_URLS = {
+            eggFigures: ['https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BA%AB%E6%B3%892.png',
+                'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%B5%81%E5%BF%832.png',
+                'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BA%8F%E5%BF%83.png',
+                'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%81%8F%E7%86%9F2.png',
+                'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%81%8E%E7%86%9F.png',
+            ]
+        };
+
+        const T = (val) => {
+            if (!val) return '';
+            if (typeof val === 'string') return val;
+            if (Array.isArray(val)) return val; 
+            if (typeof val === 'object') {
+                if (val[STATE.lang]) return val[STATE.lang];
+                if (val['tw']) return val['tw'];
+                return val;
+            }
+            return String(val);
+        };
+
+        const DONENESS_DATA = [
+            { title: { tw: '溫泉 (Onsen)', en: 'Onsen (Soft)', yue: '溫泉 (Onsen)' }, desc: { tw: '蛋白如絲綢般嫩滑，蛋黃呈半液態', en: 'Silky egg white, liquid yolk', yue: '蛋白滑捋捋，蛋黃全流心' }, color: '#FFA000', tipBackgroundColor: '#F57C00', img: RESOURCE_URLS.eggFigures[0], action: { tw: '1L水滾加300ml冷水後放入(關火泡)', en: 'Boil 1L, add 300ml cold water, soak off heat', yue: '1L水滾加300ml凍水後放入(熄火焗)' }, tips: [{ emoji: '🥣', desc: { tw: '搭配鰹魚醬油、味醂與蔥花。', en: 'Serve with dashi soy sauce and scallions.', yue: '點D鰹魚豉油加蔥花。' }, recipeId: null, ytLink: '', fallbackId: null }, { emoji: '🍚', desc: { tw: '拌入熱騰騰的牛丼。', en: 'Mix into a hot beef bowl.', yue: '撈落D熱辣辣嘅牛丼度。' }, recipeId: 6, ytLink: '', fallbackId: 6 }, { emoji: '🍵', desc: { tw: '搭配茶泡飯，淡雅茶香混合蛋液。', en: 'Serve with ochazuke (green tea rice).', yue: '同茶泡飯一起食，茶香加埋D蛋香。' }, recipeId: 8, ytLink: '', fallbackId: 13 }] },
+            { title: { tw: '流心 (Runny)', en: 'Runny', yue: '流心 (Runny)' }, desc: { tw: '蛋白基本凝固，蛋黃完全呈液態', en: 'Firm egg white, fully liquid yolk', yue: '蛋白啱啱熟，蛋黃好流心' }, color: '#FBC02D', tipBackgroundColor: '#c79100', img: RESOURCE_URLS.eggFigures[1], action: { tw: '水滾後放入', en: 'Put in boiling water', yue: '水滾後放入' }, tips: [{ emoji: '🍞', desc: { tw: '鋪在牛油烤吐司上。', en: 'Serve on buttered toast.', yue: '擺喺D牛油多上面。' }, recipeId: null, ytLink: 'https://www.youtube.com/watch?v=yq20noCHlMY', fallbackId: 3 }, { emoji: '🍝', desc: { tw: '拌入培根奶油義大利麵中。', en: 'Mix into Carbonara pasta.', yue: '撈落卡邦尼意粉度。' }, recipeId: null, ytLink: '', fallbackId: null }, { emoji: '🥗', desc: { tw: '加進凱薩沙拉中。', en: 'Add to Caesar salad.', yue: '加落D凱撒沙律度。' }, recipeId: 25, ytLink: '', fallbackId: 25 }] },
+            { title: { tw: '溏心 (Jammy)', en: 'Jammy', yue: '溏心 (Jammy)' }, desc: { tw: '蛋黃呈濃稠的膏狀或果凍狀', en: 'Thick, jammy yolk', yue: '蛋白Q彈，蛋黃似果凍嘅膏狀' }, color: '#FFA000', tipBackgroundColor: '#FFA000', img: RESOURCE_URLS.eggFigures[2], action: { tw: '水滾後放入', en: 'Put in boiling water', yue: '水滾後放入' }, tips: [{ emoji: '🍜', desc: { tw: '製作成味付溏心蛋，拉麵絕配。', en: 'Make soy-marinated eggs for ramen.', yue: '整成D日式溏心蛋，同拉麵絕配。' }, recipeId: null, ytLink: 'https://www.youtube.com/watch?v=eSeOXJmunR4', fallbackId: 13 }, { emoji: '🍚', desc: { tw: '搭配各式日式蓋飯。', en: 'Serve on Japanese rice bowls.', yue: '同D日式丼飯一起食，完美融合。' }, recipeId: 17, ytLink: '', fallbackId: 17 }, { emoji: '🥪', desc: { tw: '壓碎後製成三明治蛋沙拉。', en: 'Mash into egg salad for sandwiches.', yue: '壓碎整成蛋沙律三文治。' }, recipeId: 20, ytLink: '', fallbackId: 20 }] },
+            { title: { tw: '完美 (Creamy)', en: 'Creamy', yue: '完美 (Creamy)' }, desc: { tw: '蛋黃基本失去流動性，口感順滑', en: 'Smooth, creamy, non-liquid yolk', yue: '蛋黃好creamy，口感軟滑' }, color: '#F57C00', tipBackgroundColor: '#F57C00', img: RESOURCE_URLS.eggFigures[3], action: { tw: '水滾後放入', en: 'Put in boiling water', yue: '水滾後放入' }, tips: [{ emoji: '🧂', desc: { tw: '灑上一點海鹽與黑胡椒，最純粹的吃法。', en: 'Sprinkle with sea salt and pepper.', yue: '灑DD海鹽同黑胡椒。' }, recipeId: null, ytLink: '', fallbackId: null }, { emoji: '🥗', desc: { tw: '切片加入主廚沙拉。', en: 'Slice into a chef salad.', yue: '切片然之後加落D主廚沙律度。' }, recipeId: 25, ytLink: '', fallbackId: 25 }, { emoji: '🥩', desc: { tw: '加在韓式石鍋拌飯或部隊鍋中。', en: 'Add to Korean bibimbap or stew.', yue: '打一隻落係韓式石鍋飯或者係D部隊鍋。' }, recipeId: 19, ytLink: '', fallbackId: 19 }] },
+            { title: { tw: '嫰熟 (Firm)', en: 'Firm', yue: '嫩熟 (Firm)' }, desc: { tw: '蛋黃已完全凝固，適合做沙拉或滷蛋', en: 'Fully set yolk, great for salads', yue: '蛋黃啱啱熟透，啱整沙律或者滷水蛋' }, color: '#E65100', tipBackgroundColor: '#E65100', img: RESOURCE_URLS.eggFigures[4], action: { tw: '水滾後放入', en: 'Put in boiling water', yue: '水滾後放入' }, tips: [{ emoji: '🥗', desc: { tw: '完美契合尼斯沙拉。', en: 'Perfect for Niçoise Salad.', yue: '最夾D尼斯沙律。' }, recipeId: null, ytLink: 'https://www.youtube.com/watch?v=qUd3Y75uThg', fallbackId: 25 }, { emoji: '🍘', desc: { tw: '搗碎與美乃滋拌勻做成美式蛋沙拉。', en: 'Mix with mayo for classic egg salad.', yue: '壓爛加沙律醬整成美式蛋沙律。' }, recipeId: 20, ytLink: '', fallbackId: 20 }, { emoji: '🍱', desc: { tw: '便當盒中最健康的配菜。', en: 'Healthy side dish for bento boxes.', yue: '帶便當入面最健康嘅配菜。' }, recipeId: null, ytLink: 'https://www.youtube.com/watch?v=sI1Z7c1Qjyc', fallbackId: 15 }] },
+            { title: { tw: '全熟 (Hard)', en: 'Hard', yue: '全熟 (Hard)' }, desc: { tw: '蛋白緊實有彈性、蛋黃完全乾燥', en: 'Firm white, dry yolk', yue: '蛋白彈牙，蛋黃完全熟透' }, color: '#BF360C', tipBackgroundColor: '#BF360C', img: RESOURCE_URLS.eggFigures[4], action: { tw: '水滾後放入', en: 'Put in boiling water', yue: '水滾後放入' }, tips: [{ emoji: '🥚', desc: { tw: '製作成惡魔蛋，派對美味點心。', en: 'Perfect for Deviled Eggs.', yue: '用嚟整Party嘅魔鬼蛋。' }, recipeId: 12, ytLink: '', fallbackId: 12 }, { emoji: '🥪', desc: { tw: '拌入沙拉醬壓碎，做成粗顆粒感沙拉。', en: 'Chop and mix with mayo.', yue: '加多D沙律醬壓爛之後整成粗粒蛋沙律。' }, recipeId: 20, ytLink: '', fallbackId: 20 }, { emoji: '🍛', desc: { tw: '切半裝飾在咖哩飯上。', en: 'Slice to garnish curry rice.', yue: '切半放喺咖喱飯上面。' }, recipeId: 17, ytLink: '', fallbackId: 17 }] }
+        ];
+
+        const RECIPES = [
+            { id: 21, title: {tw: '黃金蛋炒飯', en: 'Golden Egg Fried Rice', yue: '黃金蛋炒飯'}, youtubeId: 'yspYhq-c-k8', desc: {tw: '粒粒分明，金黃誘人，雞蛋包裹每一粒米飯。', en: 'Fluffy and golden, rice coated with egg.', yue: '粒粒分明，金黃好食，雞蛋包住每粒飯。'}, tag: {tw: '中式', en: 'Chinese', yue: '中式'}, category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%9B%8B%E7%82%92%E9%A3%AF.jpg', ingredients: {tw: ['隔夜米飯 2碗', '雞蛋 3個', '火腿 1根', '小蔥 2根'], en: ['Day-old rice 2 bowls', '3 Eggs', '1 Ham', 'Scallions'], yue: ['隔夜飯 2碗', '雞蛋 3隻', '火腿 1條', '蔥 2條']}, steps: {tw: ['雞蛋打散，火腿切丁。', '熱鍋燒油炒熟蛋液。', '加入米飯翻炒均勻即可。'], en: ['Beat eggs, dice ham.', 'Fry eggs in hot oil.', 'Add rice and stir-fry evenly.'], yue: ['拂勻雞蛋，火腿切粒。', '落鑊炒熟雞蛋。', '加飯落去炒勻就搞掂。']} },
+            { id: 22, title: '厚蛋燒玉子', youtubeId: 'Dmp2-cji97A', desc: '日式早餐常見，比玉子燒更厚更鬆軟。', tag: '日式', category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%8E%89%E5%AD%90%E7%87%92.jpg', ingredients: ['雞蛋 4個', '砂糖 20g', '牛奶 40ml'], steps: ['雞蛋與調料拌勻。', '分次倒入鍋中捲起。', '切塊享用。'] },
+            { id: 23, title: '西班牙馬鈴薯蛋餅', youtubeId: 'jx2suqEPB1A', desc: '西班牙國民美食，土豆和雞蛋的完美結合。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%9C%9F%E8%B1%86%E8%9B%8B%E9%A4%85.jpg', ingredients: ['雞蛋 5個', '土豆 2個', '洋蔥 1個'], steps: ['土豆切片煎軟。', '倒入蛋液小火慢煎。', '翻面煎熟即可。'] },
+            { id: 24, title: '韓式煎蛋捲', youtubeId: 'rF1Vh66dxBg', desc: '韓式街頭小吃，雞蛋捲著蔬菜和火腿。', tag: '韓式', category: 'korean', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%B7%84%E8%9B%8B%E6%8D%B2.jpg', ingredients: ['雞蛋 4個', '胡蘿蔔', '火腿'], steps: ['蔬菜切絲。', '倒入蛋液放上蔬菜捲起。', '煎至金黃切段。'] },
+            { id: 25, title: {tw: '水波蛋沙拉', en: 'Poached Egg Salad', yue: '水波蛋沙律'}, youtubeId: '08caEhCOqOI', desc: {tw: '清新健康，輕食首選。', en: 'Fresh and healthy light meal.', yue: '清新健康輕食。'}, tag: {tw: '西式', en: 'Western', yue: '西式'}, category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%B2%99%E6%8B%89.jpg', ingredients: {tw: ['雞蛋 2個', '生菜 100g', '小番茄'], en: ['2 Eggs', 'Lettuce 100g', 'Cherry Tomatoes'], yue: ['雞蛋 2隻', '生菜 100g', '車厘茄']}, steps: {tw: ['水中加醋煮水波蛋。', '生菜鋪底放上蛋。', '淋上油醋汁。'], en: ['Poach eggs in vinegared water.', 'Serve on lettuce.', 'Drizzle with vinaigrette.'], yue: ['滾水加醋煮好水波蛋。', '生菜鋪底放隻蛋上去。', '淋啲沙律油醋汁。']} },
+            { id: 26, title: '魯菜木須肉', youtubeId: 'W4YKiKJHv6I', desc: '經典魯菜，營養均衡。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%9C%A8%E8%80%B3%E7%82%92%E8%9B%8B.jpg', ingredients: ['雞蛋 3個', '肉片 150g', '木耳'], steps: ['雞蛋炒熟。', '肉片炒變色加木耳。', '加入雞蛋翻炒調味。'] },
+            { id: 27, title: '日式蛋包飯', youtubeId: 'Vh62I2lJ86c', desc: '鬆軟的蛋皮包裹著番茄炒飯。', tag: '日式', category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%9B%8B%E5%8C%85%E9%A3%AF.jpg', ingredients: ['雞蛋 4個', '米飯', '番茄醬'], steps: ['炒好番茄飯. ', '攤蛋皮包飯。', '擠上番茄醬。'] },
+            { id: 28, title: '嘴臭韭菜盒子', youtubeId: 'YhOq_9fHdIY', desc: '酥脆的外皮包裹著韭菜雞蛋。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%9F%AD%E8%8F%9C%E7%9B%92%E5%AD%90.jpg', ingredients: ['雞蛋', '韭菜', '麵粉'], steps: ['拌好餡料。', '桿皮包餡。', '平底鍋煎至金黃。'] },
+            { id: 29, title: {tw: '韓式雞蛋羹', en: 'Korean Steamed Egg', yue: '韓式蒸水蛋'}, youtubeId: 'rF1Vh66dxBg', desc: {tw: '嫩滑如布丁。', en: 'Smooth like pudding.', yue: '滑到好似布甸咁。'}, tag: {tw: '韓式', en: 'Korean', yue: '韓式'}, category: 'korean', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%92%B8%E8%9B%8B.jpg', ingredients: {tw: ['雞蛋 3個', '溫水', '蝦仁'], en: ['3 Eggs', 'Warm water', 'Shrimp'], yue: ['雞蛋 3隻', '暖水', '蝦仁']}, steps: {tw: ['蛋液加水打勻。', '上鍋蒸熟。', '放上熟蝦仁。'], en: ['Mix egg with water.', 'Steam until done.', 'Top with shrimp.'], yue: ['蛋液加水拂勻。', '隔水蒸熟。', '擺啲熟蝦仁上去。']} },
+            { id: 30, title: '法式奄列', youtubeId: 'CFxcpzsa_mA', desc: '傳統法式 omelette，口感輕盈。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%85%8E%E8%9B%8B%E5%8D%B7.jpg', ingredients: ['雞蛋', '奶油'], steps: ['融化奶油。', '倒入蛋液慢炒。', '半凝固折疊出鍋。'] },
+            { id: 1, title: '魚香烘蛋', youtubeId: 'HsB6P1VYFhQ', desc: '外酥裡嫩，魚香味濃。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%83%98%E8%9B%8B.png', ingredients: ['雞蛋', '豬肉末'], steps: ['煎厚蛋餅。', '炒魚香肉末。', '淋在蛋餅上。'] },
+            { id: 2, title: '台灣菜脯蛋', youtubeId: 'XQAEFtexStU', desc: '台灣媽媽的味道。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%8F%B0%E7%81%A3%E8%8F%9C%E8%AD%9C%E8%9B%8B%E7%89%B9%E5%AF%AB%E5%9C%96%E7%89%87%E7%94%9F%E6%88%90.png', ingredients: ['雞蛋 3個', '菜圃 30g', '蒜苗（切細） 10g', '紅辣椒（切細） 1根'], steps: ['菜脯用清水泡10分鐘，瀝乾備用。', '雞蛋打散，加入菜脯、蒜苗、辣椒和鹽拌勻。', '熱鍋加油，倒入蛋液，小火煎至兩面金黃即可。'] },
+            { id: 3, title: '班尼迪克蛋', youtubeId: 'kAz_QzfxiYA', desc: '西餐經典，奢華早餐之選。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%8F%AD%E5%B0%BC%E8%BF%AA%E5%85%8B.png', ingredients: ['雞蛋 2個', '鬆餅', '荷蘭醬'], steps: ['烤鬆餅。', '放水波蛋淋醬。'] },
+            { id: 4, title: '番茄滑蛋', youtubeId: 'Y-WnWzl0moU', desc: '拌飯神器。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%95%AA%E8%8C%84%E7%82%92%E8%9B%8B.png', ingredients: ['雞蛋', '番茄'], steps: ['番茄炒出汁。', '加入滑蛋。'] },
+            { id: 5, title: '美式炒蛋', youtubeId: 'LHcfTFU2n2s', desc: '口感如絲綢般順滑。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%B3%95%E5%BC%8F%E7%82%92%E8%9B%8B.png', ingredients: ['雞蛋', '奶油'], steps: ['慢火融化奶油。', '蛋液炒至微凝。'] },
+            { id: 6, title: '蒲燒鰻魚飯', youtubeId: '37GwtBfAs1Y', desc: '加上流心溫泉蛋，絕配！', tag: '日式', category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%B0%BB%E9%AD%9A%E9%A3%AF.png', ingredients: ['鰻魚', '溫泉蛋'], steps: ['烤鰻魚鋪飯上。', '打入溫泉蛋。'] },
+            { id: 7, title: '可樂雞蛋', youtubeId: '2tR8yW629Ks', desc: '虎皮吸滿可樂湯汁。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%8F%AF%E6%A8%82%E9%B7%84%E8%9B%8B.png', ingredients: ['雞蛋', '可樂'], steps: ['白水煮蛋劃刀。', '煎虎皮加可樂。'] },
+            { id: 8, title: '日式茶泡飯', youtubeId: 'qxxPbUSu6eE', desc: '清淡治癒的家常飯。', tag: '日式', category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%8C%B6%E6%B3%A1%E9%A3%AF.png', ingredients: ['米飯', '雞蛋', '綠茶'], steps: ['飯上放溫泉蛋。', '倒入綠茶。'] },
+            { id: 9, title: '雞蛋捲', youtubeId: 'yPla5MB5JrQ', desc: '雞蛋捲著蔬菜。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%B7%84%E8%9B%8B%E6%8D%B2.png', ingredients: ['雞蛋', '蔬菜丁'], steps: ['蛋液加蔬菜。', '攤平捲起。'] },
+            { id: 10, title: '絲瓜燜荷包蛋', youtubeId: 'NJZ5-cNu64g', desc: '湯汁泡飯一絕。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E7%B5%B2%E7%93%9C%E7%87%9C%E8%8D%B7%E5%8C%85%E8%9B%8B.png', ingredients: ['絲瓜', '雞蛋'], steps: ['煎荷包蛋。', '加絲瓜燜煮。'] },
+            { id: 11, title: '雲吞麵', youtubeId: 'gcERkh-4VRQ', desc: '配上一顆溏心蛋。', tag: '中式', category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%9B%B2%E5%90%9E%E9%BA%B5.png', ingredients: ['雲吞麵', '雞蛋'], steps: ['煮好麵條。', '加上溏心蛋。'] },
+            { id: 12, title: '魔鬼蛋', youtubeId: 'QGkaG9Q0kfI', desc: '蛋白挖空填入蛋黃醬。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%AD%94%E9%AC%BC%E8%9B%8B.png', ingredients: ['雞蛋', '蛋黃醬'], steps: ['熟蛋對半切。', '蛋黃拌醬填回。'] },
+            { id: 13, title: {tw: '日式拉麵', en: 'Japanese Ramen', yue: '日式拉麵'}, youtubeId: 'GaRjSSA5x_w', desc: {tw: '拉麵的靈魂是溏心蛋。', en: 'Ramen topped with jammy egg.', yue: '拉麵嘅靈魂係溏心蛋。'}, tag: {tw: '日式', en: 'Japanese', yue: '日式'}, category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%97%A5%E5%BC%8F%E6%8B%89%E9%BA%B5.png', ingredients: {tw: ['拉麵', '雞蛋'], en: ['Ramen noodles', 'Egg'], yue: ['拉麵', '雞蛋']}, steps: {tw: ['煮好麵條。', '放上溏心蛋。'], en: ['Cook noodles.', 'Top with jammy egg.'], yue: ['煮好拉麵。', '放隻溏心蛋上去。']} },
+            { id: 14, title: '菠菜烘蛋', youtubeId: 'SXuZRXreuck', desc: '菠菜和雞蛋完美結合。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%8F%A0%E8%8F%9C%E7%83%98%E8%9B%8B.png', ingredients: ['菠菜', '雞蛋'], steps: ['菠菜焯水。', '加蛋液入烤箱。'] },
+            { id: 15, title: {tw: '滷蛋', en: 'Braised Eggs', yue: '滷水蛋'}, youtubeId: 'ojnIO9PoP_M', desc: {tw: '五香入味，蛋白Q彈。', en: 'Flavorful spiced braised eggs.', yue: '五香入味，好彈牙。'}, tag: {tw: '中式', en: 'Chinese', yue: '中式'}, category: 'chinese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BB%B7%E8%9B%8B.png', ingredients: {tw: ['雞蛋', '滷料包'], en: ['Eggs', 'Spice packet'], yue: ['雞蛋', '滷水料']}, steps: {tw: ['水煮蛋剝殼。', '入香料湯滷製。'], en: ['Peel boiled eggs.', 'Braise in spice broth.'], yue: ['烚熟雞蛋剝殼。', '放入滷水汁度煲。']} },
+            { id: 16, title: '蘇格蘭蛋', youtubeId: 'oC4WQBEL-w', desc: '外酥裡嫩。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%98%87%E6%A0%BC%E8%98%AD%E8%9B%8B.png', ingredients: ['雞蛋', '香腸肉'], steps: ['肉餅包煮蛋。', '裹粉炸至金黃。'] },
+            { id: 17, title: '日式咖哩飯', youtubeId: 'Pn_yd1uVezY', desc: '加上一顆溏心蛋。', tag: '日式', category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%97%A5%E5%BC%8F%E5%92%96%E5%96%B1.png', ingredients: ['米飯', '咖哩塊'], steps: ['煮好咖哩。', '加上溏心蛋。'] },
+            { id: 18, title: '芝士雞蛋吐司', youtubeId: 'WPvjKdgqLDU', desc: '簡單又美味。', tag: '西式', category: 'western', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E8%8A%9D%E5%A3%AB%E9%B7%84%E8%9B%8B%E5%90%90%E5%8F%B8.png', ingredients: ['吐司', '雞蛋'], steps: ['吐司挖空。', '打入雞蛋煎熟。'] },
+            { id: 19, title: '韓式部隊火鍋', youtubeId: 'Si52Gm7EqmI', desc: '加上一顆流心蛋。', tag: '韓式', category: 'korean', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%9F%93%E5%BC%8F%E9%83%A8%E9%9A%8A%E9%8D%8B.png', ingredients: ['拉麵', '雞蛋', '韓式辣醬', '大葱', '韓式糖漿', '泡菜'], steps: ['煮沸火鍋。', '中間打入雞蛋。'] },
+            { id: 20, title: {tw: '雞蛋三明治', en: 'Egg Sandwich', yue: '碎蛋三文治'}, youtubeId: 'Ibulrk6XXFw', desc: {tw: '雞蛋沙拉夾在吐司中。', en: 'Egg salad in toast.', yue: '碎蛋沙律夾多士。'}, tag: {tw: '日式', en: 'Japanese', yue: '日式'}, category: 'japanese', image: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%B7%84%E8%9B%8B%E6%B2%99%E6%8B%89%E5%9C%9F%E5%8F%B8.png', ingredients: {tw: ['吐司', '雞蛋'], en: ['Toast', 'Eggs'], yue: ['方包', '雞蛋']}, steps: {tw: ['熟蛋拌沙拉。', '夾入吐司中。'], en: ['Mix eggs with mayo.', 'Put in toast.'], yue: ['熟蛋壓碎撈沙律醬。', '夾落方包度。']} }
+        ];
+
+        let holdTimeout;
+        let holdInterval;
+        let timerInterval = null;
+
+        function init() {
+            applyLanguage();
+            renderDonenessSelector();
+            updateCalculation();
+            lucide.createIcons();
+            
+            const circumference = 64 * 2 * Math.PI;
+            document.getElementById('progress-ring').style.strokeDasharray = `${circumference} ${circumference}`;
+            document.getElementById('overtime-ring').style.strokeDasharray = `${circumference} ${circumference}`;
+            document.getElementById('overtime-ring').style.strokeDashoffset = circumference; 
+            
+            setupHoldButtons(); 
+            renderTips(STATE.doneness); 
+        }
+
+        window.applyLanguage = () => {
+            const lang = STATE.lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[lang] && I18N[lang][key]) {
+                    if (el.tagName === 'INPUT' && el.type === 'text') el.placeholder = I18N[lang][key];
+                    else el.innerHTML = I18N[lang][key];
+                }
+            });
+            document.getElementById('help-content').innerHTML = I18N[lang].helpText;
+            updateDynamicTexts();
+        };
+
+        function updateDynamicTexts() {
+            const lang = STATE.lang;
+            document.getElementById('text-temp').innerText = STATE.temp === 'fridge' ? I18N[lang].fridge : I18N[lang].room;
+            const sizeDesc = { s: '(< 53g)', m: '(53-63g)', l: '(> 63g)' };
+            document.getElementById('text-size-sub').innerText = sizeDesc[STATE.size];
+            
+            if (!STATE.running) {
+                const d = DONENESS_DATA[STATE.doneness];
+                document.getElementById('timer-status').innerText = T(d.action);
+                document.getElementById('doneness-big-title').innerText = T(d.title);
+                document.getElementById('doneness-sub-desc').innerText = T(d.desc);
+                document.getElementById('main-btn-text').innerText = I18N[lang].startCooking;
+            } else {
+                if (STATE.iceWaterMode) document.getElementById('timer-status').innerText = I18N[lang].iceCooling;
+                else document.getElementById('timer-status').innerText = I18N[lang].cooking;
+                document.getElementById('main-btn-text').innerText = I18N[lang].stopCooking;
+            }
+        }
+
+        window.changeLanguage = (lang) => {
+            playClickSound();
+            STATE.lang = lang;
+            ['tw', 'en', 'yue'].forEach(l => {
+                const btn = document.getElementById(`btn-lang-${l}`);
+                if (l === lang) {
+                    btn.classList.add('border-yolk', 'bg-yolk/10', 'text-yolk');
+                    btn.classList.remove('border-transparent', 'bg-gray-50', 'text-gray-600');
+                } else {
+                    btn.classList.remove('border-yolk', 'bg-yolk/10', 'text-yolk');
+                    btn.classList.add('border-transparent', 'bg-gray-50', 'text-gray-600');
+                }
+            });
+            applyLanguage();
+            renderDonenessSelector();
+            renderTips(STATE.doneness);
+            
+            const recipeCol = document.getElementById('recipe-collection');
+            if (!recipeCol.classList.contains('hidden')) filterRecipes('all');
+        };
+
+        window.openSettings = () => {
+            playClickSound();
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-modal-content');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            lucide.createIcons();
+        };
+
+        window.closeSettings = () => {
+            playClickSound();
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-modal-content');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
+        };
+
+        window.triggerIceWaterTest = () => {
+            closeSettings();
+            setTimeout(() => startIceWater(), 300);
+        };
+
+        function renderDonenessSelector() {
+            const container = document.getElementById('doneness-container');
+            container.innerHTML = DONENESS_DATA.map((opt, idx) => `
+                <div onclick="selectDoneness(${idx})" class="flex flex-col items-center gap-2 cursor-pointer transition-all duration-300">
+                    <img src="${opt.img}" alt="${T(opt.title)}" class="egg-figure-preview ${idx === STATE.doneness ? 'selected-egg' : 'opacity-50 grayscale-[0.2]'}">
+                    <div class="w-1.5 h-1.5 bg-yolk rounded-full transition-opacity duration-300 ${idx === STATE.doneness ? 'opacity-100' : 'opacity-0'}"></div>
+                </div>
+            `).join('');
+        }
+
+        window.selectDoneness = (idx) => {
+            if (STATE.running) return;
+            playClickSound(); 
+            STATE.doneness = idx;
+            renderDonenessSelector();
+            updateCalculation();
+            renderTips(idx);
+        };
+
+        function calculateTime() {
+            let time = BASE_TIMES[STATE.doneness];
+            if (STATE.temp === 'room') time -= 60;
+            if (STATE.size === 's') time -= 30;
+            if (STATE.size === 'l') time += 30;
+            const wattageFactor = 2000 / STATE.wattage;
+            return Math.max(Math.round(time * wattageFactor), 60);
+        }
+
+        const COOL_BLUE_PALETTE = ['#71B2FF', '#0029C4', '#3A8AFA', '#1651FA', '#28B8FF', '#007DCC', '#0050B3', '#003B73', '#002171', '#001CB8'];
+        const HOT_RED_PALETTE = ['#FFB300', '#F97316', '#EA580C', '#DC2626', '#B91C1C', '#991B1B', '#7F1D1D', '#450A0A', '#000000', '#4A4A4A'];
+
+        function getColor(lap) {
+            if (lap === 1 && !STATE.iceWaterMode) {
+                if (STATE.timeLeft <= 10 && STATE.running) return '#EF4444'; 
+                if (STATE.timeLeft <= 60 && STATE.running) return '#F97316'; 
+                return '#FFB300'; 
+            }
+            if (lap === 1 && STATE.iceWaterMode) {
+                if (STATE.timeLeft <= 10 && STATE.running) return '#3730A3'; 
+                return '#71B2FF'; 
+            }
+            const palette = STATE.iceWaterMode ? COOL_BLUE_PALETTE : HOT_RED_PALETTE;
+            const idx = (lap - 1) % palette.length;
+            return palette[idx];
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(STATE.timeLeft / 60).toString().padStart(2, '0');
+            const s = (STATE.timeLeft % 60).toString().padStart(2, '0');
+            const timerDisplay = document.getElementById('timer-display');
+            if(timerDisplay) timerDisplay.innerText = `${m}:${s}`;
+            
+            const circumference = 64 * 2 * Math.PI;
+            const svg = document.getElementById('timer-svg');
+            let totalLaps = Math.max(Math.ceil(STATE.timeLeft / STATE.totalTime), 1);
+
+            while (svg.children.length <= totalLaps) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('class', 'progress-ring__circle');
+                circle.setAttribute('stroke-width', '6');
+                circle.setAttribute('stroke-linecap', 'round');
+                circle.setAttribute('stroke', 'currentColor');
+                circle.setAttribute('fill', 'transparent');
+                circle.setAttribute('r', '64');
+                circle.setAttribute('cx', '70');
+                circle.setAttribute('cy', '70');
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                circle.style.strokeDashoffset = circumference;
+                circle.style.opacity = '0'; 
+                svg.appendChild(circle);
+            }
+
+            for (let i = 1; i < svg.children.length; i++) {
+                const circle = svg.children[i];
+                const lapIndex = i; 
+                circle.style.transition = 'stroke-dashoffset 0.1s linear, opacity 0.1s ease, color 0.2s ease';
+                circle.style.color = getColor(lapIndex);
+                let lapProgress = (STATE.timeLeft / STATE.totalTime) - (lapIndex - 1);
+                
+                if (lapProgress <= 0) {
+                    circle.style.strokeDashoffset = circumference; circle.style.opacity = '0'; 
+                } else if (lapProgress >= 1) {
+                    circle.style.strokeDashoffset = 0; circle.style.opacity = '1';
+                } else {
+                    circle.style.strokeDashoffset = circumference - (lapProgress * circumference); circle.style.opacity = '1';
+                }
+            }
+
+            if(timerDisplay) timerDisplay.style.color = getColor(totalLaps);
+
+            let angle = (STATE.timeLeft / STATE.totalTime) * 360;
+            const trackerContainer = document.getElementById('tracker-container');
+            const trackerIconBg = document.getElementById('tracker-icon-bg');
+            if (trackerContainer && trackerIconBg) {
+                trackerContainer.style.transform = `rotate(${angle}deg)`;
+                trackerIconBg.style.transform = `rotate(${-angle}deg)`;
+                const currentColor = getColor(totalLaps);
+                trackerIconBg.style.borderColor = currentColor;
+                trackerIconBg.style.color = currentColor;
+            }
+        }
+
+        function updateCalculation() {
+            if (STATE.running) return;
+            const time = calculateTime();
+            STATE.totalTime = time; 
+            STATE.timeLeft = time;
+            updateTimerDisplay();
+            updateDynamicTexts();
+        }
+
+        window.triggerFinish = () => {
+            clearInterval(timerInterval); STATE.running = false; 
+
+            const boilingAudio = document.getElementById('boiling-audio');
+            const iceAudio = document.getElementById('ice-water-audio');
+            const cdAudio = document.getElementById('countdown-audio');
+            boilingAudio.pause(); boilingAudio.currentTime = 0;
+            iceAudio.pause(); iceAudio.currentTime = 0;
+            cdAudio.pause(); cdAudio.currentTime = 0; 
+            
+            const alarmAudio = document.getElementById('alarm-audio');
+            alarmAudio.currentTime = 0; alarmAudio.play().catch(e => console.log(e));
+            
+            const btnMinus = document.getElementById('btn-minus');
+            const btnPlus = document.getElementById('btn-plus');
+            btnMinus.disabled = true; btnPlus.disabled = true;
+            btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
+            btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            const appShell = document.getElementById('app-shell');
+            const finishOverlay = document.getElementById('finish-overlay');
+            
+            finishOverlay.classList.remove('hidden'); finishOverlay.classList.add('flex');
+            const lang = STATE.lang;
+
+            if (STATE.iceWaterMode) {
+                appShell.classList.add('alarm-state-blue');
+                document.getElementById('timer-status').innerText = I18N[lang].coolingDone;
+                document.getElementById('finish-title').innerText = I18N[lang].iceCoolDone;
+                document.getElementById('btn-ice-water').classList.add('hidden');
+                finishOverlay.classList.replace('bg-yolk/95', 'bg-blue-500/95');
+            } else {
+                appShell.classList.add('alarm-state');
+                document.getElementById('timer-status').innerText = I18N[lang].timeUp;
+                document.getElementById('finish-title').innerText = I18N[lang].timeUp;
+                document.getElementById('btn-ice-water').classList.remove('hidden');
+                finishOverlay.classList.replace('bg-blue-500/95', 'bg-yolk/95');
+            }
+        };
+
+        function doTimerTick() {
+            STATE.timeLeft--;
+            updateTimerDisplay();
+            
+            if (STATE.timeLeft === 10) {
+                const cdAudio = document.getElementById('countdown-audio');
+                cdAudio.currentTime = 0; cdAudio.play().catch(e => console.log(e));
+            }
+
+            if (STATE.timeLeft <= 0) {
+                window.triggerFinish(); 
+            }
+        }
+
+        window.adjustTime = (seconds) => {
+            if (!STATE.running) return;
+            
+            const oldTime = STATE.timeLeft;
+            STATE.timeLeft += seconds;
+            
+            if (oldTime > 10 && STATE.timeLeft <= 10 && STATE.timeLeft > 0) {
+                const cdAudio = document.getElementById('countdown-audio');
+                cdAudio.currentTime = 0; 
+                cdAudio.play().catch(e => console.log(e));
+            }
+
+            if (STATE.timeLeft <= 0) {
+                STATE.timeLeft = 0;
+                updateTimerDisplay();
+                window.triggerFinish(); 
+                return;
+            }
+            
+            updateTimerDisplay(); 
+        };
+
+        function setupHoldButtons() {
+            const btnMinus = document.getElementById('btn-minus');
+            const btnPlus = document.getElementById('btn-plus');
+            function startAdjusting(amount) {
+                if (!STATE.running) return;
+                playClickSound(); adjustTime(amount); 
+                holdTimeout = setTimeout(() => { holdInterval = setInterval(() => { adjustTime(amount); }, 50); }, 400); 
+            }
+            function stopAdjusting() { clearTimeout(holdTimeout); clearInterval(holdInterval); }
+            const addHoldListeners = (btn, amount) => {
+                btn.addEventListener('mousedown', (e) => { if(e.button === 0 && !btn.disabled) startAdjusting(amount); });
+                btn.addEventListener('touchstart', (e) => { e.preventDefault(); if(!btn.disabled) startAdjusting(amount); }, {passive: false});
+                btn.addEventListener('mouseup', stopAdjusting);
+                btn.addEventListener('mouseleave', stopAdjusting);
+                btn.addEventListener('touchend', (e) => { e.preventDefault(); stopAdjusting(); }, {passive: false});
+            };
+            addHoldListeners(btnMinus, -10); addHoldListeners(btnPlus, 10);
+        }
+
+        window.playRecipeVideo = () => {
+            playClickSound(); 
+            const title = document.getElementById('detail-title').innerText;
+            const recipe = RECIPES.find(r => T(r.title) === title);
+
+            if (recipe && recipe.youtubeId) {
+                const container = document.getElementById('video-player-container');
+                const contentArea = document.getElementById('video-content-area');
+                document.getElementById('video-player-title').innerText = title;
+                contentArea.innerHTML = `<iframe class="w-full h-full rounded-2xl shadow-2xl" src="https://www.youtube.com/embed/${recipe.youtubeId}?enablejsapi=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                container.classList.remove('hidden'); container.classList.add('flex');
+            } else if (recipe) {
+                playFakeVideo(recipe);
+            }
+        };
+
+        window.closeVideoPlayer = () => {
+            playClickSound(); 
+            const container = document.getElementById('video-player-container');
+            document.getElementById('video-content-area').innerHTML = ""; 
+            container.classList.add('hidden'); container.classList.remove('flex');
+        };
+
+        function playFakeVideo(recipe) {
+            const player = document.getElementById('fake-video-player');
+            const lang = STATE.lang;
+            document.getElementById('fake-video-thumb').src = recipe.image;
+            document.getElementById('fake-video-title').innerText = T(recipe.title);
+            player.classList.remove('hidden'); player.classList.add('flex');
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                const steps = T(recipe.steps);
+                if (i >= steps.length) {
+                    clearInterval(interval);
+                    document.getElementById('fake-video-step').innerText = I18N[lang].perfectDone;
+                    setTimeout(() => closeFakeVideoPlayer(), 1500);
+                    return;
+                }
+                document.getElementById('fake-video-step').innerText = `${i+1}: ${steps[i]}`;
+                i++;
+            }, 2000);
+            player.dataset.interval = interval;
+        }
+
+        window.closeFakeVideoPlayer = () => {
+            playClickSound(); 
+            const player = document.getElementById('fake-video-player');
+            clearInterval(player.dataset.interval);
+            player.classList.add('hidden'); player.classList.remove('flex');
+        };
+
+        window.toggleTemp = () => {
+            if (STATE.running) return;
+            playClickSound(); 
+            STATE.temp = STATE.temp === 'fridge' ? 'room' : 'fridge';
+            document.getElementById('icon-temp').setAttribute('data-lucide', STATE.temp === 'fridge' ? 'snowflake' : 'sun');
+            lucide.createIcons();
+            updateCalculation();
+        };
+
+        window.toggleSizeDetail = () => {
+            if (STATE.running) return;
+            playClickSound(); 
+            const overlay = document.getElementById('size-modal-overlay');
+            const modal = document.getElementById('size-modal');
+            if(overlay.classList.contains('hidden')){
+                overlay.classList.remove('hidden'); setTimeout(()=> overlay.style.opacity = '1', 10);
+                modal.classList.remove('translate-y-full');
+            } else {
+                overlay.style.opacity = '0'; modal.classList.add('translate-y-full');
+                setTimeout(()=> overlay.classList.add('hidden'), 300);
+            }
+        };
+
+        window.selectSize = (sizeKey) => {
+            if (STATE.running) return;
+            playClickSound(); 
+            STATE.size = sizeKey;
+            const map = { s: 'S', m: 'M', l: 'L' };
+            document.getElementById('text-size-main').innerText = map[sizeKey];
+            updateCalculation();
+            
+            document.querySelectorAll('.size-option').forEach(opt => {
+                const isSelected = opt.getAttribute('onclick').includes(`'${sizeKey}'`);
+                const egg = opt.querySelector('.real-egg-shape');
+                if(isSelected) {
+                    opt.classList.add('neu-pressed');
+                    egg.style.background = 'linear-gradient(135deg, #FFB300 0%, #FF8F00 100%)';
+                    egg.style.borderColor = '#FFB300';
+                } else {
+                    opt.classList.remove('neu-pressed');
+                    egg.style.background = 'linear-gradient(135deg, #fff9f0 0%, #f7e8d0 100%)';
+                    egg.style.borderColor = '#ffedd5';
+                }
+            });
+        };
+
+        window.updateWattage = (val) => {
+            if (STATE.running) return;
+            STATE.wattage = parseInt(val);
+            document.getElementById('wattage-display').innerText = val + 'W';
+            updateCalculation();
+        };
+
+        window.openHelpModal = () => {
+            playClickSound(); 
+            const modal = document.getElementById('help-modal');
+            const content = document.getElementById('help-modal-content');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            lucide.createIcons();
+        };
+
+        window.closeHelpModal = () => {
+            playClickSound(); 
+            const modal = document.getElementById('help-modal');
+            const content = document.getElementById('help-modal-content');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
+        };
+
+        window.openRecipeCollection = () => {
+            playClickSound(); 
+            document.getElementById('recipe-collection').classList.remove('hidden');
+            document.getElementById('recipe-collection').classList.add('flex');
+            filterRecipes('all');
+            lucide.createIcons();
+        };
+
+        window.closeRecipeCollection = () => {
+            playClickSound(); 
+            document.getElementById('recipe-collection').classList.add('hidden');
+            document.getElementById('recipe-collection').classList.remove('flex');
+        };
+
+        window.searchRecipes = (keyword) => {
+            const filtered = RECIPES.filter(r => T(r.title).includes(keyword) || T(r.desc).includes(keyword));
+            renderRecipes(filtered);
+        };
+
+        window.filterRecipes = (category) => {
+            playClickSound(); 
+            const filtered = category === 'all' ? RECIPES : RECIPES.filter(r => r.category === category);
+            document.querySelectorAll('#recipe-collection .filter-btn').forEach(btn => {
+                const matchAttr = btn.getAttribute('onclick').includes(category);
+                btn.className = matchAttr ? "filter-btn px-4 py-2 bg-yolk text-white rounded-full text-xs font-bold whitespace-nowrap shadow-md" : "filter-btn px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold whitespace-nowrap shadow-sm border";
+            });
+            renderRecipes(filtered);
+        };
+
+        function renderRecipes(list) {
+            const container = document.getElementById('recipe-list');
+            const lang = STATE.lang;
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-10">${I18N[lang].noRecipes}</div>`; return;
+            }
+            container.innerHTML = list.map(r => `
+                <div onclick="openRecipeDetail(${r.id})" class="recipe-card neu-flat p-3 flex gap-4 cursor-pointer">
+                    <img src="${r.image}" class="w-24 h-24 rounded-xl object-cover bg-gray-100 shrink-0" loading="lazy">
+                    <div class="flex-1 flex flex-col justify-center">
+                        <div class="flex justify-between items-start"><h3 class="font-bold text-gray-800 text-lg">${T(r.title)}</h3><span class="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">${T(r.tag)}</span></div>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${T(r.desc)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.chatMemory = [];
+
+        window.openRecipeDetail = (id) => {
+            playClickSound(); 
+            window.chatMemory = []; 
+            const lang = STATE.lang;
+            const recipe = RECIPES.find(r => r.id === id);
+            if (!recipe) return;
+            document.getElementById('detail-image').src = recipe.image;
+            document.getElementById('detail-video-thumb').src = recipe.image;
+            document.getElementById('detail-title').innerText = T(recipe.title);
+            document.getElementById('detail-tag').innerText = T(recipe.tag);
+            document.getElementById('detail-desc').innerText = T(recipe.desc);
+            document.getElementById('detail-ingredients').innerHTML = T(recipe.ingredients).map(i => `<li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-yolk rounded-full"></div>${i}</li>`).join('');
+            document.getElementById('detail-steps').innerHTML = T(recipe.steps).map((s, idx) => `<div class="flex gap-3"><div class="w-6 h-6 rounded-full bg-yolk text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">${idx + 1}</div><p>${s}</p></div>`).join('');
+
+            document.getElementById('ai-chat-history').innerHTML = `<div><b>AI：</b>${I18N[lang].aiWelcome}</div>`;
+            document.getElementById('ai-input').value = '';
+
+            const modal = document.getElementById('recipe-detail-modal');
+            const content = document.getElementById('recipe-detail-content');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
+            lucide.createIcons();
+        };
+
+        window.closeRecipeDetail = () => {
+            playClickSound(); 
+            const modal = document.getElementById('recipe-detail-modal');
+            const content = document.getElementById('recipe-detail-content');
+            modal.classList.add('opacity-0'); content.classList.add('translate-y-full');
+            setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
+        };
+
+        const thinkingSentencesChef = { tw: ["大廚思考中...", "大廚試味中..."], en: ["Chef is thinking...", "Chef is preparing..."], yue: ["大廚諗緊...", "大廚試緊味..."] };
+        const thinkingSentencesGrandma = { tw: ["阿嬤翻找食譜...", "阿嬤準備中..."], en: ["Granny is checking recipes...", "Granny is looking for spices..."], yue: ["阿婆搵緊食譜...", "阿婆準備緊..."] };
+
+        window.toggleAIMode = () => {
+            playClickSound();
+            const history = document.getElementById('ai-chat-history');
+            const icon = document.getElementById('mode-icon');
+            const text = document.getElementById('mode-text');
+            const lang = STATE.lang;
+
+            if (STATE.currentMode === "chef") {
+                STATE.currentMode = "grandma";
+                icon.innerText = "👵"; text.innerText = I18N[lang].grandmaMode;
+                history.innerHTML += `<div class="mt-2 text-yolk"><b>System：</b><span class="text-gray-700">${I18N[lang].aiSystemGrandma}</span></div>`;
+            } else {
+                STATE.currentMode = "chef";
+                icon.innerText = "👨‍🍳"; text.innerText = I18N[lang].chefMode;
+                history.innerHTML += `<div class="mt-2 text-yolk"><b>System：</b><span class="text-gray-700">${I18N[lang].aiSystemChef}</span></div>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        };
+
+        window.sendJoke = () => {
+            playClickSound();
+            document.getElementById('ai-input').value = STATE.lang === 'en' ? "Tell me a joke!" : "講個笑話";
+            window.askAI();
+        };
+
+        window.sendSecret = () => {
+            playClickSound();
+            document.getElementById('ai-input').value = STATE.lang === 'en' ? "What's the secret tip for this?" : "有咩不敗秘訣？";
+            window.askAI();
+        };
+
+        // 🌟 1. 阿嬤/大廚的本地百寶箱 (當作 Network Error 時的超級救星)
+        const LOCAL_EGG_BRAIN = {
+            "zh-TW": {
+                "grandma": {
+                    "溫泉": "溫泉蛋的秘訣是『低溫慢煮』。最完美的溫度是 65°C 到 68°C，煮大約 30 到 45 分鐘喔！",
+                    "溏心": "溏心蛋的重點是『水滾後下鍋』！煮 6 到 6.5 分鐘，起鍋後『立刻泡冰水』喔！",
+                    "剝殼": "煮完的蛋『一定要馬上泡冰水』！熱脹冷縮會讓蛋膜和蛋殼分離，水裡剝更容易！",
+                    "預設": "乖孫，雖然現在網路有點連不上大腦，但煮蛋最重要的就是『時間』和『溫度』，乖乖顧火喔！"
+                },
+                "chef": {
+                    "預設": "網路連線異常，但請記住：精準控制溫度與時間，是完美蛋料理的唯一法則。"
+                }
+            },
+            "yue": {
+                "grandma": { "預設": "乖孫，依家網路好似塞車，但煮蛋最緊要就係『時間』同『溫度』！" },
+                "chef": { "預設": "網絡連線異常，但請記住：精準控制溫度與時間，係完美蛋料理嘅唯一法則。" }
+            },
+            "en": {
+                "grandma": { "預設": "Sweetie, the network is a bit busy, but cooking eggs is all about time and temperature!" },
+                "chef": { "預設": "Network error. But remember: precise temperature and time control is the golden rule." }
+            }
+        };
+
+        // 🌟 2. 終極完美版：Puter.js 真 AI + 阿嬤本地護盾
+        window.askAI = async () => {
+            playClickSound(); 
+            const input = document.getElementById('ai-input');
+            const history = document.getElementById('ai-chat-history');
+            const q = input.value.trim();
+            if(!q) return;
+
+            // 顯示使用者的問題
+            history.innerHTML += `<div class="mt-2 text-right"><span class="bg-yolk/10 p-2 rounded-lg inline-block text-gray-800"><b>You：</b>${q}</span></div>`;
+            input.value = '';
+            
+            const loadingId = 'loading-' + Date.now();
+            const aiName = STATE.currentMode === "grandma" ? (STATE.lang==='en'?"Granny":"阿嫲") : (STATE.lang==='en'?"Chef":"大廚");
+            const thinkingArray = STATE.currentMode === "grandma" ? thinkingSentencesGrandma[STATE.lang] : thinkingSentencesChef[STATE.lang];
+
+            history.innerHTML += `<div id="${loadingId}" class="mt-2 text-yolk"><b>${aiName}：</b><span class="text-gray-700">${thinkingArray[0]}</span></div>`;
+            history.scrollTop = history.scrollHeight;
+
+            const currentRecipe = document.getElementById('detail-title').innerText;
+            const textSpan = document.getElementById(loadingId).querySelector('span');
+
+            let sentenceIndex = 0;
+            const thinkingInterval = setInterval(() => {
+                sentenceIndex = (sentenceIndex + 1) % thinkingArray.length;
+                textSpan.innerText = thinkingArray[sentenceIndex];
+            }, 1000);
+
+            // 準備人設
+            let systemContent = "";
+            if (STATE.currentMode === "grandma") {
+                if (STATE.lang === "en") systemContent = "You are an expert egg chef acting like a loving grandmother. Call user 'Sweetie'. Max 2-3 short sentences. No Markdown.";
+                else if (STATE.lang === "yue") systemContent = "你係精通蛋料理嘅五星級大廚，靈魂係錫孫嘅阿婆。請用澳門/香港廣東話口語字回答。開頭叫「乖孫」。最多2到3句！嚴禁Markdown。";
+                else systemContent = "你是一位精通蛋料理的五星級大廚，靈魂是疼愛後輩的阿嬤。用繁體中文回答，開頭稱呼「乖孫」。最多2到3句，嚴禁Markdown。";
+            } else {
+                if (STATE.lang === "en") systemContent = "You are a professional egg chef. Tone: professional, confident. Max 2-3 short sentences. No Markdown.";
+                else if (STATE.lang === "yue") systemContent = "你係專業五星級大廚。語氣專業、自信。請用澳門/香港廣東話口語字回答。最多2到3句！嚴禁Markdown。";
+                else systemContent = "你是一位精通蛋料理的專業五星級大廚。用繁體中文回答。最多2到3句，絕對禁止使用Markdown。";
+            }
+
+            const fullPrompt = `${systemContent}\n現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
+
+            try {
+                // 🚀 關鍵改變：呼叫 Puter 的真 AI！因為有 GitHub Pages 的正式網址，這次絕對暢通無阻！
+                if (typeof puter === 'undefined') throw new Error("Puter 尚未載入");
+                const response = await puter.ai.chat(fullPrompt);
+                const aiText = response.toString();
+
+                clearInterval(thinkingInterval); 
+                textSpan.innerHTML = `<span class="text-gray-700">${aiText}</span>`;
+                
+                window.chatMemory = window.chatMemory || [];
+                window.chatMemory.push({ role: "user", content: q }); 
+                window.chatMemory.push({ role: "assistant", content: aiText });
+                
+            } catch (error) {
+                // 🛡️ 萬一連 Puter 都被 Norton 擋住，阿嬤的護盾依然會保護你不當機！
+                console.error("AI 連線失敗:", error);
+                clearInterval(thinkingInterval); 
+                
+                const currentLang = STATE.lang || "zh-TW";
+                const currentMode = STATE.currentMode || "grandma";
+                let db = LOCAL_EGG_BRAIN[currentLang] ? LOCAL_EGG_BRAIN[currentLang][currentMode] : LOCAL_EGG_BRAIN["zh-TW"]["grandma"];
+                
+                let answer = "";
+                for (const keyword in db) {
+                    if (q.includes(keyword)) {
+                        answer = db[keyword];
+                        break;
+                    }
+                }
+                if (!answer) answer = db["預設"];
+                
+                textSpan.innerHTML = `<span class="text-gray-700">${answer}</span>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        };
+
+
+        window.toggleTimer = () => {
+            if (STATE.running && STATE.iceWaterMode) { resetApp(); return; }
+            playClickSound(); 
+            const lang = STATE.lang;
+            const btnMinus = document.getElementById('btn-minus');
+            const btnPlus = document.getElementById('btn-plus');
+            const alarmAudio = document.getElementById('alarm-audio');
+            const boilingAudio = document.getElementById('boiling-audio'); 
+            const iceAudio = document.getElementById('ice-water-audio');
+            
+            if (STATE.running) {
+                clearInterval(timerInterval); STATE.running = false;
+                document.getElementById('main-btn').innerHTML = `<i data-lucide="play" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].startCooking}</span>`;
+                document.getElementById('main-btn').style.background = '';
+                
+                const d = DONENESS_DATA[STATE.doneness];
+                document.getElementById('timer-status').innerText = T(d.action);
+                
+                boilingAudio.pause(); boilingAudio.currentTime = 0;
+                iceAudio.pause(); iceAudio.currentTime = 0;
+
+                btnMinus.disabled = true; btnPlus.disabled = true;
+                btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
+                btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
+                lucide.createIcons(); updateCalculation();
+            } else {
+                STATE.running = true;
+                document.getElementById('main-btn').innerHTML = `<i data-lucide="square" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].stopCooking}</span>`;
+                document.getElementById('main-btn').style.background = '#FF7043';
+                document.getElementById('timer-status').innerText = I18N[lang].cooking;
+
+                boilingAudio.volume = 0.5; boilingAudio.play().catch(e => console.log(e));
+                alarmAudio.volume = 0; alarmAudio.play().then(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; alarmAudio.volume = 1; }).catch(e => console.log(e));
+                
+                btnMinus.disabled = false; btnPlus.disabled = false;
+                btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                lucide.createIcons();
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(doTimerTick, 1000);
+            }
+        };
+
+        window.startIceWater = () => {
+            playClickSound();
+            const lang = STATE.lang;
+            document.getElementById('finish-overlay').classList.add('hidden');
+            document.getElementById('finish-overlay').classList.remove('flex');
+            document.getElementById('app-shell').classList.remove('alarm-state');
+            document.getElementById('tracker-icon-flame').classList.add('hidden');
+            document.getElementById('tracker-icon-snow').classList.remove('hidden');
+
+            const alarmAudio = document.getElementById('alarm-audio');
+            alarmAudio.pause(); alarmAudio.currentTime = 0;
+
+            STATE.iceWaterMode = true; STATE.timeLeft = 180; STATE.totalTime = 180;
+
+            const boilingAudio = document.getElementById('boiling-audio');
+            boilingAudio.pause(); boilingAudio.currentTime = 0;
+            const iceAudio = document.getElementById('ice-water-audio');
+            iceAudio.volume = 0.5; iceAudio.play().catch(e => console.log(e));
+
+            document.getElementById('timer-status').innerText = I18N[lang].iceCooling;
+            document.getElementById('timer-status').classList.replace('text-yolk', 'text-blue-500');
+            document.getElementById('main-btn').innerHTML = `<i data-lucide="square" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].stopCooking}</span>`;
+            document.getElementById('main-btn').style.background = '#3B82F6'; 
+            
+            const btnMinus = document.getElementById('btn-minus');
+            const btnPlus = document.getElementById('btn-plus');
+            btnMinus.disabled = false; btnPlus.disabled = false;
+            btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            updateTimerDisplay(); lucide.createIcons();
+            
+            STATE.running = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(doTimerTick, 1000);
+        };
+
+        window.resetApp = () => {
+            playClickSound(); 
+            const lang = STATE.lang;
+            const appShell = document.getElementById('app-shell');
+            appShell.classList.remove('alarm-state', 'alarm-state-blue');
+            document.getElementById('tracker-icon-flame').classList.remove('hidden');
+            document.getElementById('tracker-icon-snow').classList.add('hidden');
+            
+            const finishOverlay = document.getElementById('finish-overlay');
+            finishOverlay.classList.add('hidden'); finishOverlay.classList.remove('flex');
+            
+            ['alarm-audio', 'boiling-audio', 'ice-water-audio', 'countdown-audio'].forEach(id => {
+                const au = document.getElementById(id); au.pause(); au.currentTime = 0;
+            });
+            
+            if (timerInterval) clearInterval(timerInterval);
+            STATE.iceWaterMode = false; STATE.running = false;
+            
+            document.getElementById('timer-status').classList.replace('text-blue-500', 'text-yolk');
+            finishOverlay.classList.replace('bg-blue-500/95', 'bg-yolk/95');
+            document.getElementById('btn-ice-water').classList.remove('hidden');
+            
+            document.getElementById('main-btn').innerHTML = `<i data-lucide="play" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].startCooking}</span>`;
+            document.getElementById('main-btn').style.background = '';
+            
+            const btnMinus = document.getElementById('btn-minus');
+            const btnPlus = document.getElementById('btn-plus');
+            btnMinus.disabled = true; btnPlus.disabled = true;
+            btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
+            btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            updateCalculation(); lucide.createIcons();
+        };
+
+        window.handleTipClick = (recipeId, ytLink, fallbackId) => {
+            playClickSound();
+            if (recipeId === null && ytLink === null && fallbackId === null) return; 
+            if (recipeId && RECIPES.some(r => r.id === recipeId)) { openRecipeDetail(recipeId); } 
+            else if (ytLink && ytLink !== 'null') { window.open(ytLink, '_blank'); } 
+            else if (fallbackId && RECIPES.some(r => r.id === fallbackId)) { openRecipeDetail(fallbackId); } 
+            else { openRecipeCollection(); }
+        };
+
+        window.renderTips = (idx) => {
+            const container = document.getElementById('tips-panel');
+            if (!container) return; 
+            const d = DONENESS_DATA[idx];
+            const tips = d.tips;
+            const lang = STATE.lang;
+
+            container.innerHTML = `
+                <div class="p-2 rounded-3xl neu-flat bg-bg border border-shadow space-y-1">
+                    ${tips.map(tip => {
+                        const rId = tip.recipeId !== null ? tip.recipeId : 'null';
+                        const yLink = tip.ytLink ? "'" + tip.ytLink + "'" : 'null';
+                        const fId = tip.fallbackId !== null ? tip.fallbackId : 'null';
+                        return `
+                        <div onclick="handleTipClick(${rId}, ${yLink}, ${fId})" class="rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:brightness-95 active:scale-95 transition-all" style="background-color: ${d.tipBackgroundColor};">
+                            <div class="text-5xl shrink-0">${tip.emoji}</div>
+                            <div class="text-white text-xs font-semibold leading-relaxed flex-1">${T(tip.desc)}</div>
+                            ${(tip.recipeId !== null || tip.ytLink || tip.fallbackId !== null) ? '<i data-lucide="chevron-right" class="w-5 h-5 text-white/50 shrink-0"></i>' : ''}
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            lucide.createIcons(); 
+        };
+
+        function preloadRecipeImages() {
+            RECIPES.forEach(recipe => { if (recipe.image) { const img = new Image(); img.src = recipe.image; } });
+        }
+        setTimeout(preloadRecipeImages, 1000);
+
+        init();
+    </script>
+</body>
+</html>
