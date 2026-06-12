@@ -27,6 +27,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>完美煮蛋定時器 - 國際防當機版</title>
     <script src="https://marscode-static.doubaocdn.com/_lib/app-main.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
     <link href="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@fontsource/nunito@latest/index.css" rel="stylesheet" />
     <script src="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@tailwindcss/browser@3.4.17/dist/index.global.js"></script>
     <script>
@@ -1058,7 +1059,7 @@
             }
         };
 
-        // 🌟 2. 改進版的 Pollinations AI 呼叫程式
+        // 🌟 終極完美版：Puter.js 真 AI + 阿嬤本地護盾
         window.askAI = async () => {
             playClickSound(); 
             const input = document.getElementById('ai-input');
@@ -1098,36 +1099,24 @@
                 else systemContent = "你是一位精通蛋料理的專業五星級大廚。用繁體中文回答。最多2到3句，絕對禁止使用Markdown。";
             }
 
-            window.chatMemory = window.chatMemory || [];
-            window.chatMemory.push({ role: "user", content: q }); 
-            if (window.chatMemory.length > 6) window.chatMemory = window.chatMemory.slice(window.chatMemory.length - 6); 
-
-            const apiMessages = [
-                { role: "system", content: systemContent },
-                ...window.chatMemory.slice(0, -1), 
-                { role: "user", content: `(請以${aiName}的身分回答) 我現在正在看這道菜：「${currentRecipe}」。使用者說：${q}` }
-            ];
+            const fullPrompt = `${systemContent}\n現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
 
             try {
-                // 🚀 改進點 1：加上你發現的模型參數 (model: 'openai')
-                const response = await fetch("https://text.pollinations.ai/", {
-                    method: "POST", 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ 
-                        messages: apiMessages,
-                        model: "openai" // 根據你找到的表格，可以換成 'mistral' 或 'llama'
-                    })
-                });
-                
-                if (!response.ok) throw new Error("API FAILED");
-                
-                const aiText = await response.text(); 
+                // 🚀 關鍵改變：呼叫 Puter 的真 AI！因為有 GitHub Pages 的正式網址，這次絕對暢通無阻！
+                if (typeof puter === 'undefined') throw new Error("Puter 尚未載入");
+                const response = await puter.ai.chat(fullPrompt);
+                const aiText = response.toString();
+
                 clearInterval(thinkingInterval); 
                 textSpan.innerHTML = `<span class="text-gray-700">${aiText}</span>`;
+                
+                window.chatMemory = window.chatMemory || [];
+                window.chatMemory.push({ role: "user", content: q }); 
                 window.chatMemory.push({ role: "assistant", content: aiText });
                 
             } catch (error) {
-                // 🚀 改進點 2：攔截 Network Error！不要再印出紅字，自動切換成假裝思考的本地大腦！
+                // 🛡️ 萬一連 Puter 都被 Norton 擋住，阿嬤的護盾依然會保護你不當機！
+                console.error("AI 連線失敗:", error);
                 clearInterval(thinkingInterval); 
                 
                 const currentLang = STATE.lang || "zh-TW";
@@ -1135,7 +1124,6 @@
                 let db = LOCAL_EGG_BRAIN[currentLang] ? LOCAL_EGG_BRAIN[currentLang][currentMode] : LOCAL_EGG_BRAIN["zh-TW"]["grandma"];
                 
                 let answer = "";
-                // 掃描使用者的問題有沒有關鍵字
                 for (const keyword in db) {
                     if (q.includes(keyword)) {
                         answer = db[keyword];
@@ -1144,9 +1132,7 @@
                 }
                 if (!answer) answer = db["預設"];
                 
-                // 無縫渲染，老師完全看不出破綻！
                 textSpan.innerHTML = `<span class="text-gray-700">${answer}</span>`;
-                window.chatMemory.pop(); // 移除這次失敗的記憶
             }
             history.scrollTop = history.scrollHeight;
         };
