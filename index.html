@@ -1114,10 +1114,11 @@
                     const response = await puter.ai.chat(fullPrompt);
                     aiText = response.toString();
                 } 
-                // 🌟 阿嬤特調：改用 POST 請求發送 JSON 包裹，解決網址太長的問題 🌟
                 else if (STATE.aiModel === 'gemini' || STATE.aiModel === 'pollination') {
-                    const targetModel = STATE.aiModel === 'gemini' ? 'gemini' : 'mistral'; // Pollination 預設用 mistral
-                    const res = await fetch('https://text.pollinations.ai/', {
+                    const targetModel = STATE.aiModel === 'gemini' ? 'gemini' : 'mistral'; 
+                    
+                    // 🌟 阿嬤特調終極版：使用 Pollinations 的正規 OpenAI 相容通道 🌟
+                    const res = await fetch('https://text.pollinations.ai/openai', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1131,8 +1132,15 @@
                         })
                     });
                     
-                    if (!res.ok) throw new Error(`${STATE.aiModel} API 呼叫失敗`);
-                    aiText = await res.text();
+                    if (!res.ok) throw new Error(`${STATE.aiModel} API 呼叫失敗，狀態碼: ${res.status}`);
+                    
+                    // 🌟 正確拆開 AI 回傳的 JSON 包裹 🌟
+                    const data = await res.json();
+                    if (data && data.choices && data.choices.length > 0) {
+                        aiText = data.choices[0].message.content;
+                    } else {
+                        throw new Error("AI 回傳的資料格式有誤");
+                    }
                 }
 
                 clearInterval(thinkingInterval); 
