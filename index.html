@@ -63,7 +63,6 @@
         button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; }
         .pointer-events-none { pointer-events: none; }
 
-        /* 🌟 阿嬤特製：通用按鈕邊框效果 (首頁設定/食譜按鈕、問號按鈕通用) 🌟 */
         .header-action-btn {
             border: 2px solid transparent; 
             transition: all 0.2s ease;
@@ -80,7 +79,6 @@
             transform: scale(0.95);
         }
 
-        /* 🌟 阿嬤特製：食譜卡片的專屬邊框效果 🌟 */
         .recipe-card {
             border: 2px solid transparent;
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -290,16 +288,15 @@
                             </div>
                             
                             <div class="flex items-center gap-2 flex-wrap justify-end">
-                                <button onclick="toggleAIModel()" class="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                                    <img id="ai-model-icon" src="https://github.com/HUHuHuuHOuO/click/blob/main/puter%20AI.png?raw=true" class="w-4 h-4 object-contain" alt="AI Icon">
-                                    <span id="ai-model-text">Puter</span>
-                                    <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400"></i>
+                                <button onclick="toggleAIModel()" class="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[125px]">
+                                    <img id="ai-model-icon" src="https://github.com/HUHuHuuHOuO/click/blob/main/puter%20AI.png?raw=true" class="w-4 h-4 object-contain shrink-0" alt="AI Icon">
+                                    <span id="ai-model-text" class="flex-1 text-center truncate">Puter</span>
+                                    <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
                                 </button>
                                 
-                                <button onclick="toggleAIMode()" class="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                                    <span id="mode-icon" class="text-sm">👨‍🍳</span>
-                                    <span id="mode-text" data-i18n="chefMode">大廚模式</span>
-                                    <i data-lucide="refresh-cw" class="w-3 h-3 ml-0.5 text-gray-400"></i>
+                                <button onclick="toggleAIMode()" class="flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[100px]">
+                                    <span id="mode-icon" class="text-sm shrink-0">👨‍🍳</span>
+                                    <span id="mode-text" class="flex-1 text-center truncate" data-i18n="chefMode">大廚模式</span>
                                 </button>
                             </div>
                         </div>
@@ -440,15 +437,14 @@
             }
         };
 
-        // 🌟 新增 aiModel 狀態，預設使用 Puter
         const STATE = { lang: 'tw', running: false, timeLeft: 390, totalTime: 390, doneness: 2, temp: 'fridge', size: 'm', wattage: 2000, iceWaterMode: false, currentMode: 'chef', aiModel: 'puter' };
         const BASE_TIMES = [390, 450, 510, 570, 660, 750];
 
-        // 🌟 AI 模型切換清單與對應的圖標
+        // 🌟 修正：把 Polliand 變回 Pollination
         const AI_MODELS = [
             { id: 'puter', name: 'Puter', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/puter%20AI.png?raw=true' },
             { id: 'gemini', name: 'Gemini', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/Gemini%20icon.png?raw=true' },
-            { id: 'polliand', name: 'Polliand', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/polliand%20AI.png?raw=true' }
+            { id: 'pollination', name: 'Pollination', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/polliand%20AI.png?raw=true' }
         ];
         
         const RESOURCE_URLS = {
@@ -1078,273 +1074,4 @@
                 "grandma": {
                     "溫泉": "溫泉蛋的秘訣是『低溫慢煮』。最完美的溫度是 65°C 到 68°C，煮大約 30 到 45 分鐘喔！",
                     "溏心": "溏心蛋的重點是『水滾後下鍋』！煮 6 到 6.5 分鐘，起鍋後『立刻泡冰水』喔！",
-                    "剝殼": "煮完的蛋『一定要馬上泡冰水』！熱脹冷縮會讓蛋膜和蛋殼分離，水裡剝更容易！",
-                    "預設": "乖孫，雖然現在網路有點連不上大腦，但煮蛋最重要的就是『時間』和『溫度』，乖乖顧火喔！"
-                },
-                "chef": {
-                    "預設": "網路連線異常，但請記住：精準控制溫度與時間，是完美蛋料理的唯一法則。"
-                }
-            },
-            "yue": {
-                "grandma": { "預設": "乖孫，依家網路好似塞車，但煮蛋最緊要就係『時間』同『溫度』！" },
-                "chef": { "預設": "網絡連線異常，但請記住：精準控制溫度與時間，係完美蛋料理嘅唯一法則。" }
-            },
-            "en": {
-                "grandma": { "預設": "Sweetie, the network is a bit busy, but cooking eggs is all about time and temperature!" },
-                "chef": { "預設": "Network error. But remember: precise temperature and time control is the golden rule." }
-            }
-        };
-
-        window.askAI = async () => {
-            playClickSound(); 
-            const input = document.getElementById('ai-input');
-            const history = document.getElementById('ai-chat-history');
-            const q = input.value.trim();
-            if(!q) return;
-
-            // 顯示使用者的問題
-            history.innerHTML += `<div class="mt-2 text-right"><span class="bg-yolk/10 p-2 rounded-lg inline-block text-gray-800"><b>You：</b>${q}</span></div>`;
-            input.value = '';
-            
-            const loadingId = 'loading-' + Date.now();
-            const aiName = STATE.currentMode === "grandma" ? (STATE.lang==='en'?"Granny":"阿嫲") : (STATE.lang==='en'?"Chef":"大廚");
-            const thinkingArray = STATE.currentMode === "grandma" ? thinkingSentencesGrandma[STATE.lang] : thinkingSentencesChef[STATE.lang];
-
-            history.innerHTML += `<div id="${loadingId}" class="mt-2 text-yolk"><b>${aiName}：</b><span class="text-gray-700">${thinkingArray[0]}</span></div>`;
-            history.scrollTop = history.scrollHeight;
-
-            const currentRecipe = document.getElementById('detail-title').innerText;
-            const textSpan = document.getElementById(loadingId).querySelector('span');
-
-            let sentenceIndex = 0;
-            const thinkingInterval = setInterval(() => {
-                sentenceIndex = (sentenceIndex + 1) % thinkingArray.length;
-                textSpan.innerText = thinkingArray[sentenceIndex];
-            }, 1000);
-
-            // 準備人設
-            let systemContent = "";
-            if (STATE.currentMode === "grandma") {
-                if (STATE.lang === "en") systemContent = "You are an expert egg chef acting like a loving grandmother. Call user 'Sweetie'. Max 2-3 short sentences. No Markdown.";
-                else if (STATE.lang === "yue") systemContent = "你係精通蛋料理嘅五星級大廚，靈魂係錫孫嘅阿婆。請用澳門/香港廣東話口語字回答。開頭叫「乖孫」。最多2到3句！嚴禁Markdown。";
-                else systemContent = "你是一位精通蛋料理的五星級大廚，靈魂是疼愛後輩的阿嬤。用繁體中文回答，開頭稱呼「乖孫」。最多2到3句，嚴禁Markdown。";
-            } else {
-                if (STATE.lang === "en") systemContent = "You are a professional egg chef. Tone: professional, confident. Max 2-3 short sentences. No Markdown.";
-                else if (STATE.lang === "yue") systemContent = "你係專業五星級大廚。語氣專業、自信。請用澳門/香港廣東話口語字回答。最多2到3句！嚴禁Markdown。";
-                else systemContent = "你是一位精通蛋料理的專業五星級大廚。用繁體中文回答。最多2到3句，絕對禁止使用Markdown。";
-            }
-
-            const fullPrompt = `${systemContent}\n現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
-
-            try {
-                let aiText = "";
-                
-                // 🚀 關鍵改變：根據使用者切換的模型呼叫對應的 API！
-                if (STATE.aiModel === 'puter') {
-                    if (typeof puter === 'undefined') throw new Error("Puter 尚未載入");
-                    const response = await puter.ai.chat(fullPrompt);
-                    aiText = response.toString();
-                } 
-                else if (STATE.aiModel === 'gemini') {
-                    // 使用開源的 Pollinations AI 直接呼叫 Gemini 模型 (免金鑰)
-                    const res = await fetch('https://text.pollinations.ai/prompt/' + encodeURIComponent(fullPrompt) + '?model=gemini');
-                    if (!res.ok) throw new Error("Gemini API 呼叫失敗");
-                    aiText = await res.text();
-                } 
-                else if (STATE.aiModel === 'polliand') {
-                    // 使用預設的 Pollinations 大語言模型 (免金鑰)
-                    const res = await fetch('https://text.pollinations.ai/prompt/' + encodeURIComponent(fullPrompt));
-                    if (!res.ok) throw new Error("Polliand API 呼叫失敗");
-                    aiText = await res.text();
-                }
-
-                clearInterval(thinkingInterval); 
-                textSpan.innerHTML = `<span class="text-gray-700">${aiText}</span>`;
-                
-                window.chatMemory = window.chatMemory || [];
-                window.chatMemory.push({ role: "user", content: q }); 
-                window.chatMemory.push({ role: "assistant", content: aiText });
-                
-            } catch (error) {
-                // 🛡️ 萬一網路或 API 異常，阿嬤的本地護盾還是會保護你！
-                console.error("AI 連線失敗:", error);
-                clearInterval(thinkingInterval); 
-                
-                const currentLang = STATE.lang || "zh-TW";
-                const currentMode = STATE.currentMode || "grandma";
-                let db = LOCAL_EGG_BRAIN[currentLang] ? LOCAL_EGG_BRAIN[currentLang][currentMode] : LOCAL_EGG_BRAIN["zh-TW"]["grandma"];
-                
-                let answer = "";
-                for (const keyword in db) {
-                    if (q.includes(keyword)) {
-                        answer = db[keyword];
-                        break;
-                    }
-                }
-                if (!answer) answer = db["預設"];
-                
-                textSpan.innerHTML = `<span class="text-gray-700">${answer}</span>`;
-            }
-            history.scrollTop = history.scrollHeight;
-        };
-
-
-        window.toggleTimer = () => {
-            if (STATE.running && STATE.iceWaterMode) { resetApp(); return; }
-            playClickSound(); 
-            const lang = STATE.lang;
-            const btnMinus = document.getElementById('btn-minus');
-            const btnPlus = document.getElementById('btn-plus');
-            const alarmAudio = document.getElementById('alarm-audio');
-            const boilingAudio = document.getElementById('boiling-audio'); 
-            const iceAudio = document.getElementById('ice-water-audio');
-            
-            if (STATE.running) {
-                clearInterval(timerInterval); STATE.running = false;
-                document.getElementById('main-btn').innerHTML = `<i data-lucide="play" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].startCooking}</span>`;
-                document.getElementById('main-btn').style.background = '';
-                
-                const d = DONENESS_DATA[STATE.doneness];
-                document.getElementById('timer-status').innerText = T(d.action);
-                
-                boilingAudio.pause(); boilingAudio.currentTime = 0;
-                iceAudio.pause(); iceAudio.currentTime = 0;
-
-                btnMinus.disabled = true; btnPlus.disabled = true;
-                btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
-                btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
-                lucide.createIcons(); updateCalculation();
-            } else {
-                STATE.running = true;
-                document.getElementById('main-btn').innerHTML = `<i data-lucide="square" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].stopCooking}</span>`;
-                document.getElementById('main-btn').style.background = '#FF7043';
-                document.getElementById('timer-status').innerText = I18N[lang].cooking;
-
-                boilingAudio.volume = 0.5; boilingAudio.play().catch(e => console.log(e));
-                alarmAudio.volume = 0; alarmAudio.play().then(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; alarmAudio.volume = 1; }).catch(e => console.log(e));
-                
-                btnMinus.disabled = false; btnPlus.disabled = false;
-                btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
-                
-                lucide.createIcons();
-                if (timerInterval) clearInterval(timerInterval);
-                timerInterval = setInterval(doTimerTick, 1000);
-            }
-        };
-
-        window.startIceWater = () => {
-            playClickSound();
-            const lang = STATE.lang;
-            document.getElementById('finish-overlay').classList.add('hidden');
-            document.getElementById('finish-overlay').classList.remove('flex');
-            document.getElementById('app-shell').classList.remove('alarm-state');
-            document.getElementById('tracker-icon-flame').classList.add('hidden');
-            document.getElementById('tracker-icon-snow').classList.remove('hidden');
-
-            const alarmAudio = document.getElementById('alarm-audio');
-            alarmAudio.pause(); alarmAudio.currentTime = 0;
-
-            STATE.iceWaterMode = true; STATE.timeLeft = 180; STATE.totalTime = 180;
-
-            const boilingAudio = document.getElementById('boiling-audio');
-            boilingAudio.pause(); boilingAudio.currentTime = 0;
-            const iceAudio = document.getElementById('ice-water-audio');
-            iceAudio.volume = 0.5; iceAudio.play().catch(e => console.log(e));
-
-            document.getElementById('timer-status').innerText = I18N[lang].iceCooling;
-            document.getElementById('timer-status').classList.replace('text-yolk', 'text-blue-500');
-            document.getElementById('main-btn').innerHTML = `<i data-lucide="square" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].stopCooking}</span>`;
-            document.getElementById('main-btn').style.background = '#3B82F6'; 
-            
-            const btnMinus = document.getElementById('btn-minus');
-            const btnPlus = document.getElementById('btn-plus');
-            btnMinus.disabled = false; btnPlus.disabled = false;
-            btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
-            
-            updateTimerDisplay(); lucide.createIcons();
-            
-            STATE.running = true;
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(doTimerTick, 1000);
-        };
-
-        window.resetApp = () => {
-            playClickSound(); 
-            const lang = STATE.lang;
-            const appShell = document.getElementById('app-shell');
-            appShell.classList.remove('alarm-state', 'alarm-state-blue');
-            document.getElementById('tracker-icon-flame').classList.remove('hidden');
-            document.getElementById('tracker-icon-snow').classList.add('hidden');
-            
-            const finishOverlay = document.getElementById('finish-overlay');
-            finishOverlay.classList.add('hidden'); finishOverlay.classList.remove('flex');
-            
-            ['alarm-audio', 'boiling-audio', 'ice-water-audio', 'countdown-audio'].forEach(id => {
-                const au = document.getElementById(id); au.pause(); au.currentTime = 0;
-            });
-            
-            if (timerInterval) clearInterval(timerInterval);
-            STATE.iceWaterMode = false; STATE.running = false;
-            
-            document.getElementById('timer-status').classList.replace('text-blue-500', 'text-yolk');
-            finishOverlay.classList.replace('bg-blue-500/95', 'bg-yolk/95');
-            document.getElementById('btn-ice-water').classList.remove('hidden');
-            
-            document.getElementById('main-btn').innerHTML = `<i data-lucide="play" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].startCooking}</span>`;
-            document.getElementById('main-btn').style.background = '';
-            
-            const btnMinus = document.getElementById('btn-minus');
-            const btnPlus = document.getElementById('btn-plus');
-            btnMinus.disabled = true; btnPlus.disabled = true;
-            btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
-            btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
-            
-            updateCalculation(); lucide.createIcons();
-        };
-
-        window.handleTipClick = (recipeId, ytLink, fallbackId) => {
-            playClickSound();
-            if (recipeId === null && ytLink === null && fallbackId === null) return; 
-            if (recipeId && RECIPES.some(r => r.id === recipeId)) { openRecipeDetail(recipeId); } 
-            else if (ytLink && ytLink !== 'null') { window.open(ytLink, '_blank'); } 
-            else if (fallbackId && RECIPES.some(r => r.id === fallbackId)) { openRecipeDetail(fallbackId); } 
-            else { openRecipeCollection(); }
-        };
-
-        window.renderTips = (idx) => {
-            const container = document.getElementById('tips-panel');
-            if (!container) return; 
-            const d = DONENESS_DATA[idx];
-            const tips = d.tips;
-            const lang = STATE.lang;
-
-            container.innerHTML = `
-                <div class="p-2 rounded-3xl neu-flat bg-bg border border-shadow space-y-1">
-                    ${tips.map(tip => {
-                        const rId = tip.recipeId !== null ? tip.recipeId : 'null';
-                        const yLink = tip.ytLink ? "'" + tip.ytLink + "'" : 'null';
-                        const fId = tip.fallbackId !== null ? tip.fallbackId : 'null';
-                        return `
-                        <div onclick="handleTipClick(${rId}, ${yLink}, ${fId})" class="rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:brightness-95 active:scale-95 transition-all" style="background-color: ${d.tipBackgroundColor};">
-                            <div class="text-5xl shrink-0">${tip.emoji}</div>
-                            <div class="text-white text-xs font-semibold leading-relaxed flex-1">${T(tip.desc)}</div>
-                            ${(tip.recipeId !== null || tip.ytLink || tip.fallbackId !== null) ? '<i data-lucide="chevron-right" class="w-5 h-5 text-white/50 shrink-0"></i>' : ''}
-                        </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            lucide.createIcons(); 
-        };
-
-        function preloadRecipeImages() {
-            RECIPES.forEach(recipe => { if (recipe.image) { const img = new Image(); img.src = recipe.image; } });
-        }
-        setTimeout(preloadRecipeImages, 1000);
-
-        init();
-    </script>
-</body>
-</html>
+                    "剝殼": "
