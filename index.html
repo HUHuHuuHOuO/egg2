@@ -1105,24 +1105,33 @@
                 else systemContent = "你是一位精通蛋料理的專業五星級大廚。用繁體中文回答。最多2到3句，絕對禁止使用Markdown。";
             }
 
-            const fullPrompt = `${systemContent}\n現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
-
             try {
                 let aiText = "";
                 
                 if (STATE.aiModel === 'puter') {
                     if (typeof puter === 'undefined') throw new Error("Puter 尚未載入");
+                    const fullPrompt = `${systemContent}\n現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
                     const response = await puter.ai.chat(fullPrompt);
                     aiText = response.toString();
                 } 
-                else if (STATE.aiModel === 'gemini') {
-                    const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=gemini');
-                    if (!res.ok) throw new Error("Gemini API 呼叫失敗");
-                    aiText = await res.text();
-                } 
-                else if (STATE.aiModel === 'pollination') {
-                    const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(fullPrompt));
-                    if (!res.ok) throw new Error("Pollination API 呼叫失敗");
+                // 🌟 阿嬤特調：改用 POST 請求發送 JSON 包裹，解決網址太長的問題 🌟
+                else if (STATE.aiModel === 'gemini' || STATE.aiModel === 'pollination') {
+                    const targetModel = STATE.aiModel === 'gemini' ? 'gemini' : 'mistral'; // Pollination 預設用 mistral
+                    const res = await fetch('https://text.pollinations.ai/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: targetModel,
+                            messages: [
+                                { role: "system", content: systemContent },
+                                { role: "user", content: `現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。` }
+                            ]
+                        })
+                    });
+                    
+                    if (!res.ok) throw new Error(`${STATE.aiModel} API 呼叫失敗`);
                     aiText = await res.text();
                 }
 
