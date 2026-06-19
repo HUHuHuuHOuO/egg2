@@ -9,26 +9,13 @@
     <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E6%BA%8F%E5%BF%83.png">
     <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E5%81%8F%E7%86%9F2.png">
     <link rel="preload" as="image" href="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/%E9%81%8E%E7%86%9F.png">
-    <script>
-        (function () {
-            var bridgeNames = ['ToutiaoJSBridge', 'BDXBridge'];
-            bridgeNames.forEach(function (bridgeName) {
-                delete window[bridgeName];
-                Object.defineProperty(window, bridgeName, {
-                    configurable: false,
-                    enumerable: false,
-                    get: function get() { return undefined; },
-                    set: function set(_) {},
-                });
-            });
-        })();
-    </script>
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>完美煮蛋定時器 - 國際防當機版</title>
-    <script src="https://marscode-static.doubaocdn.com/_lib/app-main.js"></script>
-    <link href="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@fontsource/nunito@latest/index.css" rel="stylesheet" />
-    <script src="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/@tailwindcss/browser@3.4.17/dist/index.global.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/nunito@latest/index.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -39,7 +26,7 @@
             },
         };
     </script>
-    <script src="https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/resource/npm/lucide@0.560.0/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://js.puter.com/v2/"></script>
     <style>
         body { background-color: #e5e5e5; min-height: 100vh; margin: 0; font-family: 'Nunito', sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
@@ -63,35 +50,17 @@
         button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; }
         .pointer-events-none { pointer-events: none; }
 
-        .header-action-btn {
-            border: 2px solid transparent; 
-            transition: all 0.2s ease;
-        }
+        .header-action-btn { border: 2px solid transparent; transition: all 0.2s ease; }
         @media (hover: hover) and (pointer: fine) {
-            .header-action-btn:hover {
-                border-color: #FFB300;
-                color: #FFB300;
-            }
+            .header-action-btn:hover { border-color: #FFB300; color: #FFB300; }
         }
-        .header-action-btn:active {
-            border-color: #FFB300;
-            color: #FFB300;
-            transform: scale(0.95);
-        }
+        .header-action-btn:active { border-color: #FFB300; color: #FFB300; transform: scale(0.95); }
 
-        .recipe-card {
-            border: 2px solid transparent;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        .recipe-card { border: 2px solid transparent; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @media (hover: hover) and (pointer: fine) {
-            .recipe-card:hover {
-                border-color: #FFB300;
-            }
+            .recipe-card:hover { border-color: #FFB300; }
         }
-        .recipe-card:active {
-            border-color: #FFB300;
-            transform: scale(0.98);
-        }
+        .recipe-card:active { border-color: #FFB300; transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -289,7 +258,7 @@
                             
                             <div class="flex items-center gap-2 flex-wrap justify-end">
                                 <button onclick="toggleAIModel()" class="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[125px]">
-                                    <img id="ai-model-icon" src="https://github.com/HUHuHuuHOuO/click/blob/main/puter%20AI.png?raw=true" class="w-4 h-4 object-contain shrink-0" alt="AI Icon">
+                                    <img id="ai-model-icon" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-4 h-4 object-contain shrink-0" alt="AI Icon">
                                     <span id="ai-model-text" class="flex-1 text-center truncate">Puter</span>
                                     <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
                                 </button>
@@ -367,6 +336,12 @@
     </div>
 
     <script>
+        // 🌟 阿嬤防當機保護罩：確保就算圖標載入慢，也不會害整個網頁卡死 🌟
+        function safeCreateIcons() {
+            try { if (window.lucide) lucide.createIcons(); } 
+            catch (e) { console.warn('Icons not ready yet', e); }
+        }
+
         window.playClickSound = () => {
             try {
                 const baseAudio = document.getElementById('click-audio');
@@ -440,11 +415,11 @@
         const STATE = { lang: 'tw', running: false, timeLeft: 390, totalTime: 390, doneness: 2, temp: 'fridge', size: 'm', wattage: 2000, iceWaterMode: false, currentMode: 'chef', aiModel: 'puter' };
         const BASE_TIMES = [390, 450, 510, 570, 660, 750];
 
-        // 🌟 修正：把 Polliand 變回 Pollination
+        // 🌟 阿嬤修正：使用穩定的圖片庫連結
         const AI_MODELS = [
-            { id: 'puter', name: 'Puter', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/puter%20AI.png?raw=true' },
-            { id: 'gemini', name: 'Gemini', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/Gemini%20icon.png?raw=true' },
-            { id: 'pollination', name: 'Pollination', icon: 'https://github.com/HUHuHuuHOuO/click/blob/main/polliand%20AI.png?raw=true' }
+            { id: 'puter', name: 'Puter', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png' },
+            { id: 'gemini', name: 'Gemini', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/Gemini%20icon.png' },
+            { id: 'pollination', name: 'Pollination', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/polliand%20AI.png' }
         ];
         
         const RESOURCE_URLS = {
@@ -515,18 +490,22 @@
         let timerInterval = null;
 
         function init() {
-            applyLanguage();
-            renderDonenessSelector();
-            updateCalculation();
-            lucide.createIcons();
-            
-            const circumference = 64 * 2 * Math.PI;
-            document.getElementById('progress-ring').style.strokeDasharray = `${circumference} ${circumference}`;
-            document.getElementById('overtime-ring').style.strokeDasharray = `${circumference} ${circumference}`;
-            document.getElementById('overtime-ring').style.strokeDashoffset = circumference; 
-            
-            setupHoldButtons(); 
-            renderTips(STATE.doneness); 
+            try {
+                applyLanguage();
+                renderDonenessSelector();
+                updateCalculation();
+                safeCreateIcons();
+                
+                const circumference = 64 * 2 * Math.PI;
+                document.getElementById('progress-ring').style.strokeDasharray = `${circumference} ${circumference}`;
+                document.getElementById('overtime-ring').style.strokeDasharray = `${circumference} ${circumference}`;
+                document.getElementById('overtime-ring').style.strokeDashoffset = circumference; 
+                
+                setupHoldButtons(); 
+                renderTips(STATE.doneness); 
+            } catch(e) {
+                console.error("Init Error:", e);
+            }
         }
 
         window.applyLanguage = () => {
@@ -588,7 +567,7 @@
             const content = document.getElementById('settings-modal-content');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
-            lucide.createIcons();
+            safeCreateIcons();
         };
 
         window.closeSettings = () => {
@@ -867,7 +846,7 @@
             playClickSound(); 
             STATE.temp = STATE.temp === 'fridge' ? 'room' : 'fridge';
             document.getElementById('icon-temp').setAttribute('data-lucide', STATE.temp === 'fridge' ? 'snowflake' : 'sun');
-            lucide.createIcons();
+            safeCreateIcons();
             updateCalculation();
         };
 
@@ -921,7 +900,7 @@
             const content = document.getElementById('help-modal-content');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
-            lucide.createIcons();
+            safeCreateIcons();
         };
 
         window.closeHelpModal = () => {
@@ -937,7 +916,7 @@
             document.getElementById('recipe-collection').classList.remove('hidden');
             document.getElementById('recipe-collection').classList.add('flex');
             filterRecipes('all');
-            lucide.createIcons();
+            safeCreateIcons();
         };
 
         window.closeRecipeCollection = () => {
@@ -1001,7 +980,7 @@
             const content = document.getElementById('recipe-detail-content');
             modal.classList.remove('hidden'); modal.classList.add('flex');
             setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full'); }, 10);
-            lucide.createIcons();
+            safeCreateIcons();
         };
 
         window.closeRecipeDetail = () => {
@@ -1015,7 +994,6 @@
         const thinkingSentencesChef = { tw: ["大廚思考中...", "大廚試味中..."], en: ["Chef is thinking...", "Chef is preparing..."], yue: ["大廚諗緊...", "大廚試緊味..."] };
         const thinkingSentencesGrandma = { tw: ["阿嬤翻找食譜...", "阿嬤準備中..."], en: ["Granny is checking recipes...", "Granny is looking for spices..."], yue: ["阿婆搵緊食譜...", "阿婆準備緊..."] };
 
-        // 🌟 新增：切換 AI 模型功能
         window.toggleAIModel = () => {
             playClickSound();
             const currentIndex = AI_MODELS.findIndex(m => m.id === STATE.aiModel);
@@ -1024,7 +1002,6 @@
             
             STATE.aiModel = nextModel.id;
 
-            // 更新 UI 顯示的圖標和文字
             document.getElementById('ai-model-icon').src = nextModel.icon;
             document.getElementById('ai-model-text').innerText = nextModel.name;
 
@@ -1117,7 +1094,6 @@
                 textSpan.innerText = thinkingArray[sentenceIndex];
             }, 1000);
 
-            // 準備人設
             let systemContent = "";
             if (STATE.currentMode === "grandma") {
                 if (STATE.lang === "en") systemContent = "You are an expert egg chef acting like a loving grandmother. Call user 'Sweetie'. Max 2-3 short sentences. No Markdown.";
@@ -1140,13 +1116,11 @@
                     aiText = response.toString();
                 } 
                 else if (STATE.aiModel === 'gemini') {
-                    // 🌟 阿嬤修正：拔除多餘的 /prompt/ 讓 Gemini 滿血復活！
                     const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(fullPrompt) + '?model=gemini');
                     if (!res.ok) throw new Error("Gemini API 呼叫失敗");
                     aiText = await res.text();
                 } 
                 else if (STATE.aiModel === 'pollination') {
-                    // 🌟 阿嬤修正：拔除多餘的 /prompt/ 讓 Pollination 滿血復活！
                     const res = await fetch('https://text.pollinations.ai/' + encodeURIComponent(fullPrompt));
                     if (!res.ok) throw new Error("Pollination API 呼叫失敗");
                     aiText = await res.text();
@@ -1206,7 +1180,7 @@
                 btnMinus.disabled = true; btnPlus.disabled = true;
                 btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
                 btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
-                lucide.createIcons(); updateCalculation();
+                safeCreateIcons(); updateCalculation();
             } else {
                 STATE.running = true;
                 document.getElementById('main-btn').innerHTML = `<i data-lucide="square" fill="currentColor"></i><span id="main-btn-text">${I18N[lang].stopCooking}</span>`;
@@ -1220,7 +1194,7 @@
                 btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
                 btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
                 
-                lucide.createIcons();
+                safeCreateIcons();
                 if (timerInterval) clearInterval(timerInterval);
                 timerInterval = setInterval(doTimerTick, 1000);
             }
@@ -1256,7 +1230,7 @@
             btnMinus.classList.remove('opacity-50', 'cursor-not-allowed');
             btnPlus.classList.remove('opacity-50', 'cursor-not-allowed');
             
-            updateTimerDisplay(); lucide.createIcons();
+            updateTimerDisplay(); safeCreateIcons();
             
             STATE.running = true;
             if (timerInterval) clearInterval(timerInterval);
@@ -1294,7 +1268,7 @@
             btnMinus.classList.add('opacity-50', 'cursor-not-allowed');
             btnPlus.classList.add('opacity-50', 'cursor-not-allowed');
             
-            updateCalculation(); lucide.createIcons();
+            updateCalculation(); safeCreateIcons();
         };
 
         window.handleTipClick = (recipeId, ytLink, fallbackId) => {
@@ -1329,7 +1303,7 @@
                     }).join('')}
                 </div>
             `;
-            lucide.createIcons(); 
+            safeCreateIcons(); 
         };
 
         function preloadRecipeImages() {
