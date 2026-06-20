@@ -249,36 +249,32 @@
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="shopping-basket" class="w-4 h-4 text-yolk"></i> <span data-i18n="ingredients">食材準備</span></h3><ul id="detail-ingredients" class="text-sm text-gray-600 grid grid-cols-2 gap-2"></ul></div>
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-yolk"></i> <span data-i18n="steps">烹飪步驟</span></h3><div id="detail-steps" class="text-sm text-gray-600 space-y-4"></div></div>
                     
-                    <!-- 🌟 乾淨俐落的 AI 助手區塊 🌟 -->
                     <div class="neu-flat p-4 border-t-4 border-t-yolk mt-6 mb-8">
-                        <div class="flex flex-col gap-3 mb-4">
-                            <div class="flex items-center gap-3 flex-wrap">
-                                <div class="w-8 h-8 bg-yolk rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
-                                <h3 class="font-bold text-gray-800 shrink-0 mr-1" data-i18n="aiAssistant">智慧廚藝助手</h3>
-                                
-                                <button onclick="toggleAIModel()" class="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[115px]">
-                                    <img id="ai-model-icon" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-4 h-4 object-contain shrink-0" alt="AI Icon">
-                                    <span id="ai-model-text" class="flex-1 text-center truncate">Puter</span>
-                                    <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                                </button>
-                                
-                                <button onclick="toggleAIMode()" class="flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[100px]">
-                                    <span id="mode-icon" class="text-sm shrink-0">👨‍🍳</span>
-                                    <span id="mode-text" class="flex-1 text-center truncate" data-i18n="chefMode">大廚模式</span>
-                                </button>
-                            </div>
+                        
+                        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 mb-2 w-full">
+                            <div class="w-7 h-7 bg-yolk rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="bot" class="w-4 h-4"></i></div>
+                            <h3 class="font-bold text-gray-800 shrink-0 whitespace-nowrap text-sm mr-1" data-i18n="aiAssistant">智慧廚藝助手</h3>
+                            
+                            <button onclick="toggleAIModel()" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                                <img id="ai-model-icon" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
+                                <span id="ai-model-text" class="whitespace-nowrap">Puter</span>
+                                <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
+                            </button>
+                            
+                            <button onclick="toggleAIMode()" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                                <span id="mode-icon" class="text-sm shrink-0">👨‍🍳</span>
+                                <span id="mode-text" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
+                            </button>
                         </div>
 
                         <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
                         </div>
                         
-                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center">
+                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center pb-1">
                             <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
                             <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
                             
-                            <button onclick="stopAI()" id="btn-stop-ai" class="shrink-0 flex items-center justify-center w-8 h-8 bg-yellow-50 hover:bg-yellow-100 text-yolk rounded-full border border-yolk transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" title="停止對話">
-                                <div class="w-3 h-3 bg-yolk rounded-sm"></div>
-                            </button>
+                            <button onclick="stopAI()" id="btn-stop-ai" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" data-i18n="stopAnswer">⛔ 停止回答</button>
                         </div>
                         
                         <div class="flex gap-2">
@@ -371,7 +367,7 @@
                 grandmaMode: "阿嫲模式", joke: "😂 講個笑話", secret: "🤫 不敗秘訣", send: "發送", inputPlaceholder: "輸入問題...",
                 selectSizeModal: "選擇雞蛋規格", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷水模式",
                 noRecipes: "暫無相關食譜", helpTitle: "使用說明", aiWelcome: "我是你的蛋料理專家！有任何問題都可以問我喔！",
-                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！",
+                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！", stopAnswer: "⛔ 停止回答",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 關於食譜：</b><br>這裡收錄了多種精選蛋料理，點擊卡片即可查看詳細步驟與教學影片。若設備為首次使用該html網站 加載圖片可能會稍慢。</p>
                     <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請您手動跳轉到youtube</p>
@@ -389,7 +385,7 @@
                 grandmaMode: "Granny Mode", joke: "😂 Tell a joke", secret: "🤫 Secret Tip", send: "Send", inputPlaceholder: "Ask a question...",
                 selectSizeModal: "Select Egg Size", settingsTitle: "Settings", language: "Language", testMode: "🛠️ Test: Ice Water Mode",
                 noRecipes: "No recipes found", helpTitle: "How to use", aiWelcome: "I am your egg expert! Ask me anything!",
-                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!",
+                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!", stopAnswer: "⛔ Stop AI",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 About Recipes:</b><br>Explore our curated list of egg recipes. Click the cards to view detailed steps and videos. (Images may load slightly slower on your first visit to this site.)</p>
                     <p><b>🍳 Video Notice:</b><br>Some videos are sourced from YouTube. If they fail to play, please manually open them on YouTube.</p>
@@ -407,7 +403,7 @@
                 grandmaMode: "阿婆模式", joke: "😂 講個笑話", secret: "🤫 必勝秘訣", send: "發送", inputPlaceholder: "問啲嘢啦...",
                 selectSizeModal: "雞蛋大細", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷河模式",
                 noRecipes: "暫時冇呢個食譜", helpTitle: "點用？", aiWelcome: "我係你嘅專屬廚神！有咩唔明即問即答！",
-                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！",
+                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！", stopAnswer: "⛔ 停止回答",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 關於食譜：</b><br>呢度有好多精選蛋料理，㩒D卡片就可以睇D步驟同片。如果設備係第一次用呢個html網站 加載ge圖片可能會比較慢。</p>
                     <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請你高擡玉手手動跳轉到youtube</p>
