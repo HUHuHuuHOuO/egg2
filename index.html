@@ -249,15 +249,14 @@
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="shopping-basket" class="w-4 h-4 text-yolk"></i> <span data-i18n="ingredients">食材準備</span></h3><ul id="detail-ingredients" class="text-sm text-gray-600 grid grid-cols-2 gap-2"></ul></div>
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-yolk"></i> <span data-i18n="steps">烹飪步驟</span></h3><div id="detail-steps" class="text-sm text-gray-600 space-y-4"></div></div>
                     
+                    <!-- 🌟 乾淨俐落的 AI 助手區塊 🌟 -->
                     <div class="neu-flat p-4 border-t-4 border-t-yolk mt-6 mb-8">
-                        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-yolk rounded-full flex items-center justify-center text-white"><i data-lucide="bot" class="w-5 h-5"></i></div>
-                                <h3 class="font-bold text-gray-800" data-i18n="aiAssistant">智慧廚藝助手</h3>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 flex-wrap justify-end">
-                                <button onclick="toggleAIModel()" class="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[125px]">
+                        <div class="flex flex-col gap-3 mb-4">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <div class="w-8 h-8 bg-yolk rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                                <h3 class="font-bold text-gray-800 shrink-0 mr-1" data-i18n="aiAssistant">智慧廚藝助手</h3>
+                                
+                                <button onclick="toggleAIModel()" class="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200 w-[115px]">
                                     <img id="ai-model-icon" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-4 h-4 object-contain shrink-0" alt="AI Icon">
                                     <span id="ai-model-text" class="flex-1 text-center truncate">Puter</span>
                                     <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
@@ -272,10 +271,16 @@
 
                         <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100">
                         </div>
-                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar">
+                        
+                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center">
                             <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
                             <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
+                            
+                            <button onclick="stopAI()" id="btn-stop-ai" class="shrink-0 flex items-center justify-center w-8 h-8 bg-yellow-50 hover:bg-yellow-100 text-yolk rounded-full border border-yolk transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" title="停止對話">
+                                <div class="w-3 h-3 bg-yolk rounded-sm"></div>
+                            </button>
                         </div>
+                        
                         <div class="flex gap-2">
                             <input type="text" id="ai-input" data-i18n="inputPlaceholder" placeholder="輸入問題..." class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-yolk" onclick="playClickSound()" onkeypress="if(event.key === 'Enter') askAI()">
                             <button onclick="askAI()" class="bg-yolk text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md" data-i18n="send">發送</button>
@@ -1073,6 +1078,35 @@
             }
         };
 
+        // 🌟 煞車系統：控制 AI 是否要停止 🌟
+        window.aiThinkingInterval = null;
+        window.aiAbortController = null;
+        window.isAIGenerating = false;
+
+        window.stopAI = () => {
+            if(!window.isAIGenerating) return;
+            playClickSound();
+            
+            // 拔掉網路線 (終止 Fetch)
+            if(window.aiAbortController) window.aiAbortController.abort();
+            
+            // 停止「思考中...」的動畫
+            if(window.aiThinkingInterval) clearInterval(window.aiThinkingInterval);
+            
+            window.isAIGenerating = false;
+            
+            // 讓暫停按鈕變暗
+            const stopBtn = document.getElementById('btn-stop-ai');
+            if(stopBtn) stopBtn.classList.add('opacity-50', 'pointer-events-none');
+            
+            // 在畫面上顯示 [已停止]
+            const lang = STATE.lang;
+            const stopText = lang === 'en' ? '[Stopped]' : lang === 'yue' ? '[已停止]' : '[已停止]';
+            if(window.currentAITextSpan) {
+                window.currentAITextSpan.innerHTML = `<span class="text-gray-400 italic">${stopText}</span>`;
+            }
+        };
+
         window.askAI = async () => {
             playClickSound(); 
             const input = document.getElementById('ai-input');
@@ -1080,7 +1114,13 @@
             const q = input.value.trim();
             if(!q) return;
 
-            // 顯示使用者的問題
+            // 🌟 每次發問前，重置煞車系統並點亮暫停按鈕 🌟
+            if(window.aiAbortController) window.aiAbortController.abort();
+            window.aiAbortController = new AbortController();
+            window.isAIGenerating = true;
+            const stopBtn = document.getElementById('btn-stop-ai');
+            if(stopBtn) stopBtn.classList.remove('opacity-50', 'pointer-events-none');
+
             history.innerHTML += `<div class="mt-2 text-right"><span class="bg-yolk/10 p-2 rounded-lg inline-block text-gray-800"><b>You：</b>${q}</span></div>`;
             input.value = '';
             
@@ -1088,20 +1128,20 @@
             const aiName = STATE.currentMode === "grandma" ? (STATE.lang==='en'?"Granny":"阿嫲") : (STATE.lang==='en'?"Chef":"大廚");
             const thinkingArray = STATE.currentMode === "grandma" ? thinkingSentencesGrandma[STATE.lang] : thinkingSentencesChef[STATE.lang];
 
-            // 顯示 AI 思考中
             history.innerHTML += `<div id="${loadingId}" class="mt-2 text-yolk"><b>${aiName}：</b><span class="text-gray-700">${thinkingArray[0]}</span></div>`;
             history.scrollTop = history.scrollHeight;
 
             const currentRecipe = document.getElementById('detail-title').innerText;
             const textSpan = document.getElementById(loadingId).querySelector('span');
+            window.currentAITextSpan = textSpan; // 記住現在正在講話的位子，方便煞車時改字
 
             let sentenceIndex = 0;
-            const thinkingInterval = setInterval(() => {
+            if(window.aiThinkingInterval) clearInterval(window.aiThinkingInterval);
+            window.aiThinkingInterval = setInterval(() => {
                 sentenceIndex = (sentenceIndex + 1) % thinkingArray.length;
-                textSpan.innerText = thinkingArray[sentenceIndex];
+                if(window.isAIGenerating) textSpan.innerText = thinkingArray[sentenceIndex];
             }, 1000);
 
-            // 🌟 復活啦！阿嬤最豐富的靈魂人設字數 🌟
             let systemContent = "";
             if (STATE.currentMode === "grandma") {
                 if (STATE.lang === "en") systemContent = "You are an expert egg chef acting like a loving grandmother. Call user 'Sweetie'. Max 2-3 short sentences. No Markdown.";
@@ -1118,38 +1158,42 @@
                 const fullPrompt = `現在正在看的菜是：「${currentRecipe}」。\n使用者問：${q}\n請以${aiName}的身分回答。`;
 
                 if (STATE.aiModel === 'puter') {
-                    // Puter 模式
                     if (typeof puter === 'undefined') throw new Error("Puter 尚未載入");
                     const response = await puter.ai.chat(`${systemContent}\n${fullPrompt}`);
+                    if(!window.isAIGenerating) return; // 如果已經煞車了，就不要印出來
                     aiText = response.toString();
                 } 
                 else {
-                    // 🌟 終極殺手鐧：最單純的 GET 請求 + System 參數分離法 🌟
-                    // 放棄會讓伺服器當機的 model=gemini，讓它自動派最強大腦來代班！
+                    const targetModel = STATE.aiModel === 'gpt4o' ? 'openai' : 'mistral'; // 自動對應你改的 GPT4o
                     const safePrompt = encodeURIComponent(fullPrompt);
                     const safeSystem = encodeURIComponent(systemContent);
+                    const url = `https://text.pollinations.ai/${safePrompt}?system=${safeSystem}&model=${targetModel}`;
                     
-                    const url = `https://text.pollinations.ai/${safePrompt}?system=${safeSystem}`;
-                    
-                    const res = await fetch(url);
+                    // 🌟 綁上煞車線 (signal) 🌟
+                    const res = await fetch(url, { signal: window.aiAbortController.signal });
                     
                     if (!res.ok) throw new Error(`API 呼叫失敗，狀態碼: ${res.status}`);
                     aiText = await res.text();
                 }
 
-                clearInterval(thinkingInterval); 
+                if(!window.isAIGenerating) return; // 再次確認有沒有被煞車
+
+                clearInterval(window.aiThinkingInterval); 
                 textSpan.innerHTML = `<span class="text-gray-700">${aiText}</span>`;
                 
-                // 存入記憶
                 window.chatMemory = window.chatMemory || [];
                 window.chatMemory.push({ role: "user", content: q }); 
                 window.chatMemory.push({ role: "assistant", content: aiText });
                 
             } catch (error) {
-                console.error("AI 連線失敗:", error);
-                clearInterval(thinkingInterval); 
+                // 如果是因為我們按下煞車導致的錯誤，就不要跳警告
+                if (error.name === 'AbortError') return;
                 
-                // 斷線時的備用小劇場
+                if(!window.isAIGenerating) return;
+
+                console.error("AI 連線失敗:", error);
+                clearInterval(window.aiThinkingInterval); 
+                
                 const currentLang = STATE.lang || "zh-TW";
                 const currentMode = STATE.currentMode || "grandma";
                 let db = LOCAL_EGG_BRAIN[currentLang] ? LOCAL_EGG_BRAIN[currentLang][currentMode] : LOCAL_EGG_BRAIN["zh-TW"]["grandma"];
@@ -1164,6 +1208,12 @@
                 if (!answer) answer = db["預設"];
                 
                 textSpan.innerHTML = `<span class="text-gray-700">${answer}</span>`;
+            } finally {
+                // 結束後，把暫停按鈕變暗
+                if(window.isAIGenerating) {
+                    window.isAIGenerating = false;
+                    if(stopBtn) stopBtn.classList.add('opacity-50', 'pointer-events-none');
+                }
             }
             history.scrollTop = history.scrollHeight;
         };
