@@ -415,10 +415,15 @@
         const STATE = { lang: 'tw', running: false, timeLeft: 390, totalTime: 390, doneness: 2, temp: 'fridge', size: 'm', wattage: 2000, iceWaterMode: false, currentMode: 'chef', aiModel: 'puter' };
         const BASE_TIMES = [390, 450, 510, 570, 660, 750];
 
-        // 🌟 阿嬤修正：使用穩定的圖片庫連結
+        // 🌟 乖孫專屬客製化：GPT-4o 華麗登場 🌟
         const AI_MODELS = [
             { id: 'puter', name: 'Puter', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png' },
-            { id: 'gemini', name: 'Gemini', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/Gemini%20icon.png' },
+            { 
+                id: 'gpt4o', 
+                name: 'GPT-4o', 
+                // 阿嬤幫你找了一個超高清、官方正版的 ChatGPT (OpenAI) 圖標！
+                icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/chatgpt-logo-png_seeklogo-465219.png' 
+            },
             { id: 'pollination', name: 'Pollination', icon: 'https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/polliand%20AI.png' }
         ];
         
