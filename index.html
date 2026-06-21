@@ -62,49 +62,13 @@
         }
         .recipe-card:active { border-color: #FFB300; transform: scale(0.98); }
 
-        /* 🌟 重新設計的逼真卡通雙欄便簽紙 🌟 */
-        .notepad-wrapper {
-            background-color: #fef9e7; /* 復古紙張色 */
-            border-radius: 12px;
-            box-shadow: 2px 4px 12px rgba(0,0,0,0.06);
-            border: 1px solid #f0e6d2;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
-        .notepad-left-line {
-            position: absolute; top: 0; bottom: 0; left: 35px; width: 2px; background: #ff9e9e; z-index: 10; pointer-events: none;
-        }
-        .notepad-center-line {
-            position: absolute; top: 0; bottom: 0; left: calc(50% + 17.5px); border-left: 2px dashed #e1d5c9; z-index: 10; pointer-events: none;
-        }
-        .notepad-holes {
-            position: absolute; left: 10px; top: 12px; bottom: 0; display: flex; flex-direction: column; gap: 20px; z-index: 10; pointer-events: none;
-        }
-        .notepad-hole {
-            width: 12px; height: 12px; background: #e5e5e5; border-radius: 50%; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
-        }
-        .notepad-scroll-area {
-            /* 4行高度：每一行32px -> 32*4 = 128px */
-            height: 128px;
-            overflow-y: auto;
-            padding-left: 42px; /* 避開紅線 */
-            background-image: repeating-linear-gradient(transparent, transparent 31px, #e1d5c9 31px, #e1d5c9 32px);
-            background-attachment: local;
-            position: relative;
-        }
-        .notepad-row {
-            display: flex; height: 32px; align-items: center; position: relative; z-index: 20;
-        }
-        .notepad-slot {
-            width: 50%; height: 100%; display: flex; align-items: center; justify-content: space-between; px-2;
-            font-family: 'Comic Sans MS', 'Nunito', sans-serif; color: #555; font-size: 13px;
-        }
+        /* 🌟 乖孫專屬設計圖：黑框圓角 AI 聊天氣泡樣式 🌟 */
+        .bubble-user { border: 2px solid #333; border-radius: 12px; padding: 10px 14px; display: inline-block; background: #fff; font-weight: bold; color: #333; }
+        .bubble-ai { border: 2px solid #333; border-radius: 12px; padding: 12px 14px; background: #fff; color: #333; line-height: 1.6; }
     </style>
 </head>
 <body>
     <div id="app-shell">
-        <!-- 頂部 Header -->
         <header class="pt-6 px-4 flex-none flex justify-between items-center z-20">
             <h1 class="text-xl font-black tracking-wider text-gray-600 ml-2" data-i18n="appTitle">完美鷄蛋</h1>
             <div class="flex gap-1.5">
@@ -115,15 +79,15 @@
                     <i data-lucide="cooking-pot" class="w-4 h-4"></i>
                     <span class="text-[11px] font-bold tracking-wider" data-i18n="aiIdea">AI想菜譜</span>
                 </button>
+                <!-- 恢復了「更多蛋料理」字樣 -->
                 <button onclick="openRecipeCollection()" class="neu-flat header-action-btn px-2.5 py-2 flex items-center gap-1 text-gray-500">
                     <i data-lucide="book-open" class="w-4 h-4"></i>
-                    <span class="text-[11px] font-bold tracking-wider" data-i18n="moreRecipes">更多</span>
+                    <span class="text-[11px] font-bold tracking-wider" data-i18n="moreRecipes">更多蛋料理</span>
                 </button>
             </div>
         </header>
 
         <main class="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4 pb-4 relative w-full">
-            <!-- (原定時器主畫面維持不變) -->
             <div id="settings-panel" class="space-y-6 transition-all duration-500">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="neu-flat p-3 flex flex-col items-center justify-center cursor-pointer neu-btn h-24" onclick="toggleTemp()">
@@ -192,7 +156,6 @@
             </div>
         </main>
 
-        <!-- 設定模態框 -->
         <div id="settings-modal" class="absolute inset-0 z-[70] bg-black/50 hidden items-center justify-center transition-opacity duration-300 opacity-0 px-6">
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 flex flex-col transform scale-95 transition-transform duration-300 shadow-2xl" id="settings-modal-content">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
@@ -284,19 +247,11 @@
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-yolk"></i> <span data-i18n="steps">烹飪步驟</span></h3><div id="detail-steps" class="text-sm text-gray-600 space-y-4"></div></div>
                     
                     <div class="neu-flat p-4 border-t-4 border-t-yolk mt-6 mb-8">
-                        <!-- Detail 頁面的 AI 助手保留原本結構，僅套用新按鈕樣式保持一致 -->
+                        <!-- 🌟 恢復：將 AI 切換按鈕放回此處 🌟 -->
                         <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 mb-2 w-full">
                             <div class="w-7 h-7 bg-yolk rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="bot" class="w-4 h-4"></i></div>
-                            <h3 class="font-bold text-gray-800 shrink-0 whitespace-nowrap text-sm mr-1" data-i18n="aiAssistant">智慧廚藝助手</h3>
-                        </div>
-
-                        <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100"></div>
-                        
-                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center pb-1">
-                            <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
-                            <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
-                            <button onclick="stopAI('recipe')" id="btn-stop-ai-recipe" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" data-i18n="stopAnswer">⛔ 停止</button>
-                            <div class="w-[1px] h-4 bg-gray-300 mx-1 shrink-0"></div>
+                            <h3 class="font-bold text-gray-800 shrink-0 whitespace-nowrap text-sm mr-auto" data-i18n="aiAssistant">智慧廚藝助手</h3>
+                            
                             <button onclick="toggleAIModel('recipe')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
                                 <img id="ai-model-icon-recipe" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
                                 <span id="ai-model-text-recipe" class="whitespace-nowrap">Puter</span>
@@ -305,6 +260,15 @@
                                 <span id="mode-icon-recipe" class="text-sm shrink-0">👨‍🍳</span>
                                 <span id="mode-text-recipe" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
                             </button>
+                        </div>
+
+                        <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100"></div>
+                        
+                        <!-- 🌟 恢復：底部的快速發問按鈕 🌟 -->
+                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center pb-1">
+                            <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
+                            <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
+                            <button onclick="stopAI('recipe')" id="btn-stop-ai-recipe" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" data-i18n="stopAnswer">⛔ 停止回答</button>
                         </div>
                         
                         <div class="flex gap-2">
@@ -316,91 +280,107 @@
             </div>
         </div>
 
-        <!-- 🌟 乖孫專屬：全螢幕 AI 想菜譜 模態框 (全面升級版) 🌟 -->
+        <!-- ==================================================================================== -->
+        <!-- 🌟 乖孫專屬設計：完全按照 1.png, 2.png, 3.png, 4.png 重新打造的 AI 想菜譜全螢幕 🌟 -->
+        <!-- ==================================================================================== -->
         <div id="idea-modal" class="absolute inset-0 z-[65] bg-bg hidden flex-col overflow-hidden">
-            <!-- 加大版標題 -->
-            <div class="pt-6 px-6 pb-4 flex items-center justify-between bg-bg/90 backdrop-blur sticky top-0 z-10 border-b border-gray-200">
-                <button onclick="closeIdeaModal()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
-                <h2 class="text-2xl font-black text-gray-700 flex items-center gap-2 tracking-wide">
-                    <i data-lucide="cooking-pot" class="w-6 h-6 text-yolk"></i> AI 想菜譜
+            
+            <!-- 【圖1】頂部 Header：(返回) [icon] AI想菜譜 -->
+            <div class="pt-6 px-6 pb-4 flex items-center bg-bg sticky top-0 z-10 border-b border-gray-800">
+                <button onclick="closeIdeaModal()" class="w-12 h-12 border-2 border-gray-800 rounded-full flex items-center justify-center text-gray-800 font-bold active:scale-95 transition-transform bg-white">
+                    返回
+                </button>
+                <h2 class="text-2xl font-bold text-yolk flex items-center gap-2 ml-4 tracking-wide">
+                    <i data-lucide="cooking-pot" class="w-7 h-7"></i> AI想菜譜
                 </h2>
-                <div class="w-10 h-10"></div> 
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6 space-y-6 pb-24 flex flex-col">
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 flex flex-col bg-bg">
                 
-                <!-- 🌟 重新設計的逼真卡通雙欄便簽紙 🌟 -->
-                <div class="notepad-wrapper">
-                    <!-- 左側紅線 -->
-                    <div class="notepad-left-line"></div>
-                    <!-- 中間虛線 -->
-                    <div class="notepad-center-line"></div>
-                    <!-- 左側活頁洞洞 -->
-                    <div class="notepad-holes">
-                        <div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div>
+                <!-- 【圖1】📝 食材備忘錄 (包含洞洞、紅線、虛線、4行) -->
+                <div class="border-2 border-gray-800 rounded-2xl bg-white overflow-hidden relative">
+                    <div class="text-center font-bold text-yolk py-2 border-b-2 border-gray-800 bg-[#FFFDF8] text-lg">
+                        📝 食材備忘錄
                     </div>
+                    
+                    <!-- 內部滾動區 (固定高度 130px = 約4行) -->
+                    <div class="h-[130px] overflow-y-auto relative bg-[#FFFDF8] hide-scrollbar" id="notepad-scroll-area">
+                        <!-- 紅線 -->
+                        <div class="absolute left-[36px] top-0 bottom-0 w-[2px] bg-red-400 z-10 pointer-events-none"></div>
+                        <!-- 虛線 -->
+                        <div class="absolute left-1/2 top-0 bottom-0 border-l-2 border-dashed border-gray-400 z-10 pointer-events-none"></div>
+                        
+                        <!-- 洞洞 (5個) -->
+                        <div class="absolute left-[8px] top-2 bottom-0 flex flex-col gap-[12px] z-10 pointer-events-none">
+                            <div class="w-[18px] h-[18px] rounded-full border-2 border-gray-800 bg-white"></div>
+                            <div class="w-[18px] h-[18px] rounded-full border-2 border-gray-800 bg-white"></div>
+                            <div class="w-[18px] h-[18px] rounded-full border-2 border-gray-800 bg-white"></div>
+                            <div class="w-[18px] h-[18px] rounded-full border-2 border-gray-800 bg-white"></div>
+                            <div class="w-[18px] h-[18px] rounded-full border-2 border-gray-800 bg-white"></div>
+                        </div>
 
-                    <!-- 標題區 (不隨線條滾動，固定在上方) -->
-                    <div class="pl-[42px] pt-3 pb-1 border-b border-dashed border-[#e1d5c9] bg-[#fef9e7] relative z-20">
-                        <span class="font-black text-gray-500 tracking-widest text-sm">🧺 目前食材清單</span>
-                    </div>
-
-                    <!-- 內文滾動區 (4行高) -->
-                    <div id="notepad-scroll-area" class="notepad-scroll-area hide-scrollbar">
-                        <div id="notepad-rows" class="flex flex-col">
+                        <!-- 橫列容器 -->
+                        <div id="notepad-rows" class="relative z-20 flex flex-col w-full">
                             <!-- JS 動態生成槽位 -->
                         </div>
                     </div>
                 </div>
 
-                <!-- 🌟 並排操作按鈕區 🌟 -->
-                <div class="flex gap-3">
-                    <button onclick="askIdeaRecommendation()" class="flex-1 bg-yellow-100 text-yellow-700 py-3 rounded-2xl font-black shadow-sm active:scale-95 transition-transform flex justify-center items-center gap-2 border border-yellow-200">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i> 推薦食譜
+                <!-- 【圖1】完成選材 & 選擇食材 按鈕 -->
+                <div class="flex gap-2">
+                    <button onclick="askIdeaRecommendation()" class="flex-1 bg-white border-2 border-gray-800 text-gray-800 py-3 rounded-xl font-bold active:scale-95 transition-transform flex justify-center items-center gap-2">
+                        <span class="bg-green-500 text-white text-xs w-4 h-4 rounded flex items-center justify-center">✓</span> 完成選材
                     </button>
-                    <button onclick="toggleIngredientGrid()" class="flex-1 bg-yellow-100 text-yellow-700 py-3 rounded-2xl font-black shadow-sm active:scale-95 transition-transform flex justify-center items-center gap-2 border border-yellow-200">
-                        <i data-lucide="list-plus" class="w-4 h-4"></i> 選擇食材
+                    <button onclick="toggleIngredientGrid()" class="flex-1 bg-white border-2 border-gray-800 text-gray-800 py-3 rounded-xl font-bold active:scale-95 transition-transform flex justify-center items-center gap-2">
+                        🧺 選擇食材
                     </button>
                 </div>
 
-                <!-- 🌟 5x4 食材擴充網格 🌟 -->
-                <div id="ingredient-grid-panel" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-4 transform transition-all">
+                <!-- 【圖2】食材選擇區 (預設隱藏) -->
+                <div id="ingredient-grid-panel" class="hidden bg-white border-2 border-gray-800 rounded-2xl p-4">
+                    <div class="font-bold text-lg mb-3">食材選擇區 💚</div>
+                    <!-- 5x4 圓角矩形網格 -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="ingredient-grid-container">
-                        <!-- JS 動態渲染 -->
+                        <!-- JS 動態生成 -->
                     </div>
                 </div>
 
-                <!-- 追問泡泡 & YouTube 卡片區 -->
-                <div id="idea-solutions-area" class="flex flex-col gap-2 empty:hidden mt-2"></div>
-
-                <!-- AI 聊天紀錄區 (加大版) -->
-                <div id="idea-chat-history" class="text-sm text-gray-600 mb-2 flex-1 space-y-4 leading-relaxed bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-h-[240px]">
-                    <div class="text-gray-400 italic text-center mt-12">快把你想清冰箱的食材加進上面便簽紙，<br>或者直接問我有什麼推薦吧！</div>
-                </div>
-
-                <!-- 底部操作列 (根據要求排列) -->
-                <div class="flex flex-col gap-3 mt-auto bg-bg relative">
-                    <div class="flex gap-2 overflow-x-auto hide-scrollbar items-center pb-1 w-full">
-                        <button onclick="sendQuickIdea('不知道吃什麼，推薦點百搭食材給我吧！')" class="shrink-0 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm">🤔 不知道吃什麼</button>
-                        <button onclick="sendQuickIdea('有沒有清淡一點的作法？')" class="shrink-0 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm">🥗 清淡一點</button>
-                        <button onclick="stopAI('idea')" id="btn-stop-ai-idea" class="shrink-0 px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-500 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none">⛔ 停止</button>
+                <!-- 【圖3/4】智慧廚藝助手 聊天區 -->
+                <div class="border-2 border-gray-800 rounded-2xl bg-white flex flex-col flex-1 min-h-[350px]">
+                    
+                    <!-- 頂部標題區 -->
+                    <div class="flex justify-between items-center p-3 border-b-2 border-gray-800">
+                        <div class="flex items-center gap-2">
+                            <div class="w-[50px] h-[50px] rounded-full border-2 border-gray-800 flex items-center justify-center text-[10px] text-center leading-tight font-bold bg-white p-1">
+                                智慧廚藝<br>助手圖標
+                            </div>
+                            <h3 class="font-bold text-lg tracking-widest text-gray-800">智 慧 廚 藝 助 手</h3>
+                        </div>
+                        <button onclick="toggleAIModel('idea')" class="border-2 border-gray-800 px-3 py-1.5 font-bold text-sm rounded-lg active:scale-95 flex items-center gap-1 bg-white">
+                            <img id="ai-model-icon-idea" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-4 h-4"> [切換AI的]
+                        </button>
+                    </div>
+                    
+                    <!-- 聊天記錄區 -->
+                    <div id="idea-chat-history" class="p-4 flex-1 overflow-y-auto space-y-4 bg-[#fcfcfc]">
+                        <div class="text-center text-gray-400 font-bold mt-10">把你想清冰箱的食材告訴我，或者問我有什麼推薦！</div>
+                    </div>
+                    
+                    <!-- 底部控制列 -->
+                    <div class="p-3 border-t-2 border-gray-800 bg-white rounded-b-2xl">
+                        <!-- 快速提問 -->
+                        <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar">
+                            <button onclick="sendQuickIdea('不知道吃什麼，有什麼推薦嗎？')" class="border-2 border-gray-800 rounded-lg px-3 py-1 font-bold text-sm bg-white active:scale-95 whitespace-nowrap">[不知道吃什麼]</button>
+                            <button onclick="sendQuickIdea('有沒有清淡一點的作法？')" class="border-2 border-gray-800 rounded-lg px-3 py-1 font-bold text-sm bg-white active:scale-95 whitespace-nowrap">[清淡一點]</button>
+                            <button onclick="stopAI('idea')" id="btn-stop-ai-idea" class="border-2 border-gray-800 rounded-lg px-3 py-1 font-bold text-sm bg-white active:scale-95 opacity-50 pointer-events-none whitespace-nowrap">[停止]</button>
+                        </div>
                         
-                        <!-- AI & Mode 切換按鈕移動到最右側 -->
-                        <div class="w-[1px] h-4 bg-gray-300 mx-1 shrink-0"></div>
-                        <button onclick="toggleAIModel('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-white text-gray-600 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                            <img id="ai-model-icon-idea" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
-                            <span id="ai-model-text-idea" class="whitespace-nowrap">Puter</span>
-                        </button>
-                        <button onclick="toggleAIMode('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-white text-gray-600 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                            <span id="mode-icon-idea" class="text-sm shrink-0">👨‍🍳</span>
-                            <span id="mode-text-idea" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
-                        </button>
+                        <!-- 輸入框 -->
+                        <div class="flex gap-2">
+                            <input type="text" id="idea-ai-input" placeholder="[輸入框]" class="flex-1 border-2 border-gray-800 rounded-xl px-4 py-3 font-bold text-lg outline-none focus:bg-yellow-50" onkeypress="if(event.key === 'Enter') askIdeaAI()">
+                        </div>
                     </div>
 
-                    <div class="flex gap-2">
-                        <input type="text" id="idea-ai-input" placeholder="告訴我你還有什麼食材..." class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-yolk shadow-sm" onclick="playClickSound()" onkeypress="if(event.key === 'Enter') askIdeaAI()">
-                        <button onclick="askIdeaAI()" class="bg-yolk text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-transform"><i data-lucide="send" class="w-5 h-5"></i></button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -474,7 +454,7 @@
 
         const I18N = {
             tw: {
-                appTitle: "完美鷄蛋", moreRecipes: "更多", settings: "設定", aiIdea: "想菜譜",
+                appTitle: "完美鷄蛋", moreRecipes: "更多蛋料理", settings: "設定", aiIdea: "AI想菜譜",
                 initTemp: "初始溫度", fridge: "冷藏", room: "室溫",
                 eggSize: "雞蛋規格", stoveWatt: "爐灶瓦數", targetDoneness: "目標熟度", startCooking: "開始煮", stopCooking: "停止",
                 cooking: "煮蛋中...", putInBoiling: "水開後放入", iceCooling: "冰水冷卻中...", coolingDone: "冷卻完成！", timeUp: "時間到！",
@@ -484,7 +464,7 @@
                 grandmaMode: "阿嫲模式", joke: "😂 講個笑話", secret: "🤫 不敗秘訣", send: "發送", inputPlaceholder: "輸入問題...",
                 selectSizeModal: "選擇雞蛋規格", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷水模式",
                 noRecipes: "暫無相關食譜", helpTitle: "使用說明", aiWelcome: "我是你的蛋料理專家！有任何問題都可以問我喔！",
-                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！", stopAnswer: "⛔ 停止",
+                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！", stopAnswer: "⛔ 停止回答",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 關於食譜：</b><br>這裡收錄了多種精選蛋料理，點擊卡片即可查看詳細步驟與教學影片。若設備為首次使用該html網站 加載圖片可能會稍慢。</p>
                     <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請您手動跳轉到youtube</p>
@@ -493,7 +473,7 @@
                 <p class="px-1 mt-4 text-gray-600"><b>🙏 感謝：</b><br>各大youtube教程影片提供者, 馬田, 豆包AI, Gemini, deepseek, cookpad......</p>`
             },
             en: {
-                appTitle: "Perfect Egg", moreRecipes: "More", settings: "Settings", aiIdea: "Recipe AI",
+                appTitle: "Perfect Egg", moreRecipes: "Egg Recipes", settings: "Settings", aiIdea: "Recipe AI",
                 initTemp: "Init Temp", fridge: "Fridge", room: "Room",
                 eggSize: "Egg Size", stoveWatt: "Stove Wattage", targetDoneness: "Target Doneness", startCooking: "Start", stopCooking: "Stop",
                 cooking: "Cooking...", putInBoiling: "Put in boiling water", iceCooling: "Cooling...", coolingDone: "Cooling Done!", timeUp: "Time's Up!",
@@ -503,16 +483,13 @@
                 grandmaMode: "Granny Mode", joke: "😂 Tell a joke", secret: "🤫 Secret Tip", send: "Send", inputPlaceholder: "Ask a question...",
                 selectSizeModal: "Select Egg Size", settingsTitle: "Settings", language: "Language", testMode: "🛠️ Test: Ice Water Mode",
                 noRecipes: "No recipes found", helpTitle: "How to use", aiWelcome: "I am your egg expert! Ask me anything!",
-                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!", stopAnswer: "⛔ Stop",
+                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!", stopAnswer: "⛔ Stop AI",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
-                    <p><b>🥚 About Recipes:</b><br>Explore our curated list of egg recipes. Click the cards to view detailed steps and videos. (Images may load slightly slower on your first visit to this site.)</p>
-                    <p><b>🍳 Video Notice:</b><br>Some videos are sourced from YouTube. If they fail to play, please manually open them on YouTube.</p>
-                    <p><b>🤖 AI Assistant:</b><br>At the bottom of the recipe details page, you can ask the AI for cooking tips. Click the "Chef/Granny Mode" button in the top right to freely switch between different assistant styles!</p>
-                </div>
-                <p class="px-1 mt-4 text-gray-600"><b>🙏 Special Thanks:</b><br>Various YouTube tutorial creators, Martin, Doubao AI, Gemini, DeepSeek, Cookpad...</p>`
+                    <p><b>🥚 About Recipes:</b><br>Explore our curated list of egg recipes. Click the cards to view detailed steps and videos.</p>
+                </div>`
             },
             yue: {
-                appTitle: "完美雞蛋", moreRecipes: "更多", settings: "設定", aiIdea: "諗菜譜",
+                appTitle: "完美雞蛋", moreRecipes: "更多蛋料理", settings: "設定", aiIdea: "諗菜譜",
                 initTemp: "初始溫度", fridge: "雪櫃", room: "室溫",
                 eggSize: "雞蛋大細", stoveWatt: "爐頭火數", targetDoneness: "目標熟度", startCooking: "開始煮", stopCooking: "停",
                 cooking: "煮緊...", putInBoiling: "水滾後放入", iceCooling: "過緊冷河...", coolingDone: "搞掂！", timeUp: "夠鐘！",
@@ -522,13 +499,10 @@
                 grandmaMode: "阿婆模式", joke: "😂 講個笑話", secret: "🤫 必勝秘訣", send: "發送", inputPlaceholder: "問啲嘢啦...",
                 selectSizeModal: "雞蛋大細", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷河模式",
                 noRecipes: "暫時冇呢個食譜", helpTitle: "點用？", aiWelcome: "我係你嘅專屬廚神！有咩唔明即問即答！",
-                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！", stopAnswer: "⛔ 停止",
+                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！", stopAnswer: "⛔ 停止回答",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
-                    <p><b>🥚 關於食譜：</b><br>呢度有好多精選蛋料理，㩒D卡片就可以睇D步驟同片。如果設備係第一次用呢個html網站 加載ge圖片可能會比較慢。</p>
-                    <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請你高擡玉手手動跳轉到youtube</p>
-                    <p><b>🤖 廚藝助手：</b><br>喺食譜底可以問 AI 煮食ge小貼士，仲可以自由切換大廚/阿婆模式！</p>
-                </div>
-                <p class="px-1 mt-4 text-gray-600"><b>🙏 鳴謝：</b><br>各大youtube教程影片提供者, 馬田, 豆包AI, Gemini, deepseek, cookpad......</p>`
+                    <p><b>🥚 關於食譜：</b><br>呢度有好多精選蛋料理，㩒D卡片就可以睇D步驟同片。</p>
+                </div>`
             }
         };
 
@@ -611,9 +585,9 @@
         // 🌟 新增：便簽紙資料庫與網格選單 🌟
         window.ideaIngredients = [];
         const INGREDIENT_GRID = [
-            '🥚 鷄蛋', '🥓 培根', '🍅 番茄', '🧅 洋蔥', '🥬 高麗菜',
-            '🧀 起司', '🦐 蝦仁', '🍗 鷄肉', '🥩 牛肉', '🐟 魚肉',
-            '🍄 蘑菇', '🥔 馬鈴薯', '🥕 胡蘿蔔', '🌶️ 辣椒', '🧄 蒜頭',
+            '🥚 雞蛋', '🥓 培根', '🍅 番茄', '🧅 洋蔥', '🥬 高麗菜',
+            '🧀 起司', '🦐 蝦仁', '🍗 雞肉', '🥩 牛肉', '🐟 魚肉',
+            '🍄 蘑菇', '🥔 馬鈴薯', '🥕 胡蘿蔔', '🌶️ 辣椒', '🧄 大蒜',
             '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸'
         ];
 
@@ -631,8 +605,8 @@
                 
                 setupHoldButtons(); 
                 renderTips(STATE.doneness); 
-                renderNotepadRows(); // 渲染新的左右雙欄便簽紙
-                renderIngredientGrid(); // 渲染選單網格
+                renderNotepadRows(); 
+                renderIngredientGrid(); 
             } catch(e) { console.error("Init Error:", e); }
         }
 
@@ -706,15 +680,16 @@
             setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
         };
 
-        // 🌟 新增：打開/關閉 全螢幕AI想菜譜 🌟
+        // 🌟 打開 AI 想菜譜 🌟
         window.openIdeaModal = () => {
             playClickSound(); 
             document.getElementById('idea-modal').classList.remove('hidden');
             document.getElementById('idea-modal').classList.add('flex');
             safeCreateIcons();
-            // 自動滾動到底部
-            const scrollArea = document.getElementById('notepad-scroll-area');
-            scrollArea.scrollTop = scrollArea.scrollHeight;
+            setTimeout(() => {
+                const scrollArea = document.getElementById('notepad-scroll-area');
+                scrollArea.scrollTop = scrollArea.scrollHeight;
+            }, 50);
         };
 
         window.closeIdeaModal = () => {
@@ -723,7 +698,7 @@
             document.getElementById('idea-modal').classList.remove('flex');
         };
 
-        // 🌟 核心：渲染雙欄便簽紙 🌟
+        // 🌟 核心：渲染雙欄便簽紙 (嚴格還原圖1) 🌟
         window.renderNotepadRows = () => {
             const container = document.getElementById('notepad-rows');
             let items = [...window.ideaIngredients];
@@ -733,54 +708,48 @@
             let html = '';
             
             for (let i = 0; i < totalSlots; i += 2) {
-                html += `<div class="notepad-row">`;
-                html += renderNotepadSlot(i, items[i]);     // 左半邊
-                html += renderNotepadSlot(i+1, items[i+1]); // 右半邊
+                html += `<div class="flex h-[32px] border-b border-gray-400">`;
+                html += renderNotepadSlot(i, items[i], true);  // 左邊
+                html += renderNotepadSlot(i+1, items[i+1], false); // 右邊
                 html += `</div>`;
             }
             container.innerHTML = html;
             safeCreateIcons();
 
-            // 讓它自動滾到最下面
             const scrollArea = document.getElementById('notepad-scroll-area');
             scrollArea.scrollTop = scrollArea.scrollHeight;
         };
 
-        function renderNotepadSlot(index, item) {
+        function renderNotepadSlot(index, item, isLeft) {
+            // 左側要避開洞洞跟紅線，所以 padding 較多
+            const paddingLeft = isLeft ? 'pl-[44px]' : 'pl-3';
+            
             if (item) {
                 return `
-                <div class="notepad-slot group pr-3 relative">
-                    <span class="font-bold truncate text-gray-700 w-[90%]" title="${item}">${item}</span>
-                    <button onclick="removeIngredient(${index})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                <div class="w-1/2 ${paddingLeft} pr-3 flex items-center justify-between text-[15px]">
+                    <div class="flex gap-1 overflow-hidden whitespace-nowrap text-ellipsis items-center">
+                        <span class="text-yolk font-bold">${index + 1}.</span>
+                        <span class="font-bold text-[#b46a36]">${item}</span>
+                    </div>
+                    <button onclick="removeIdeaIngredient(${index})" class="text-red-500 font-bold active:scale-90 text-lg flex items-center justify-center pb-1" title="刪除">×</button>
                 </div>`;
             } else {
                 return `
-                <div class="notepad-slot pr-3 relative">
-                    <input type="text" id="slot-input-${index}" class="bg-transparent border-none outline-none w-[80%] text-gray-600" placeholder="" onkeypress="if(event.key === 'Enter') addSlotIngredient(${index})">
-                    <button onclick="addSlotIngredient(${index})" class="text-gray-300 hover:text-yolk transition-colors absolute right-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
+                <div class="w-1/2 ${paddingLeft} pr-3 flex items-center justify-end text-[15px]">
+                    <button onclick="toggleIngredientGrid()" class="text-yolk font-black text-xl active:scale-90 flex items-center justify-center pb-1" title="新增食材">+</button>
                 </div>`;
             }
         }
 
-        window.addSlotIngredient = (index) => {
-            const input = document.getElementById('slot-input-' + index);
-            const val = input.value.trim();
-            if(val) {
-                playClickSound();
-                window.ideaIngredients.push(val); // 固定推到陣列最後面
-                renderNotepadRows();
-                renderIngredientGrid(); // 同步網格
-            }
-        };
-
-        window.removeIngredient = (index) => {
+        window.removeIdeaIngredient = (index) => {
             playClickSound();
             window.ideaIngredients.splice(index, 1);
             renderNotepadRows();
-            renderIngredientGrid(); // 同步網格
+            renderIngredientGrid(); 
+            updateTagButtonsUI(); // 更新對話框內的標籤狀態
         };
 
-        // 🌟 網格選單邏輯 🌟
+        // 🌟 網格選單邏輯 (還原圖2) 🌟
         window.toggleIngredientGrid = () => {
             playClickSound();
             const panel = document.getElementById('ingredient-grid-panel');
@@ -795,12 +764,11 @@
             const container = document.getElementById('ingredient-grid-container');
             container.innerHTML = INGREDIENT_GRID.map(item => {
                 const isSelected = window.ideaIngredients.includes(item);
-                const boxStr = isSelected ? '<span class="text-yolk font-black text-lg">☑</span>' : '<span class="text-gray-300 font-bold text-lg">□</span>';
-                const bgClass = isSelected ? 'bg-yellow-50 border-yellow-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:bg-gray-100';
+                const boxStr = isSelected ? '<span class="text-green-500 font-black text-lg">☑</span>' : '<span class="text-gray-300 font-bold text-lg">□</span>';
                 
                 return `
-                <button onclick="toggleGridItem('${item}')" class="flex justify-between items-center px-3 py-2 rounded-xl border transition-all active:scale-95 ${bgClass}">
-                    <span class="text-xs font-bold text-gray-700">${item}</span>
+                <button onclick="toggleGridItem('${item}')" class="flex justify-between items-center px-3 py-1.5 rounded-[20px] border-2 border-gray-800 bg-white active:scale-95 transition-transform">
+                    <span class="text-sm font-bold text-gray-800">${item}</span>
                     ${boxStr}
                 </button>`;
             }).join('');
@@ -815,6 +783,7 @@
             }
             renderIngredientGrid();
             renderNotepadRows();
+            updateTagButtonsUI();
         };
 
         window.sendQuickIdea = (text) => {
@@ -829,7 +798,7 @@
                 document.getElementById('idea-ai-input').value = '我不知道今晚吃什麼，有什麼推薦的食材組合嗎？';
             } else {
                 const list = window.ideaIngredients.join('、');
-                document.getElementById('idea-ai-input').value = `我已經選好了：${list}，請幫我想菜譜！`;
+                document.getElementById('idea-ai-input').value = `我已經選好了：${list}，你推薦我做什麼菜？`;
             }
             window.askIdeaAI();
         };
@@ -993,12 +962,10 @@
         function doTimerTick() {
             STATE.timeLeft--;
             updateTimerDisplay();
-            
             if (STATE.timeLeft === 10) {
                 const cdAudio = document.getElementById('countdown-audio');
                 cdAudio.currentTime = 0; cdAudio.play().catch(e => console.log(e));
             }
-
             if (STATE.timeLeft <= 0) {
                 window.triggerFinish(); 
             }
@@ -1006,23 +973,16 @@
 
         window.adjustTime = (seconds) => {
             if (!STATE.running) return;
-            
             const oldTime = STATE.timeLeft;
             STATE.timeLeft += seconds;
-            
             if (oldTime > 10 && STATE.timeLeft <= 10 && STATE.timeLeft > 0) {
                 const cdAudio = document.getElementById('countdown-audio');
                 cdAudio.currentTime = 0; 
                 cdAudio.play().catch(e => console.log(e));
             }
-
             if (STATE.timeLeft <= 0) {
-                STATE.timeLeft = 0;
-                updateTimerDisplay();
-                window.triggerFinish(); 
-                return;
+                STATE.timeLeft = 0; updateTimerDisplay(); window.triggerFinish(); return;
             }
-            
             updateTimerDisplay(); 
         };
 
@@ -1102,8 +1062,7 @@
             playClickSound(); 
             STATE.temp = STATE.temp === 'fridge' ? 'room' : 'fridge';
             document.getElementById('icon-temp').setAttribute('data-lucide', STATE.temp === 'fridge' ? 'snowflake' : 'sun');
-            safeCreateIcons();
-            updateCalculation();
+            safeCreateIcons(); updateCalculation();
         };
 
         window.toggleSizeDetail = () => {
@@ -1261,7 +1220,6 @@
             document.getElementById('ai-model-icon-recipe').src = nextModel.icon;
             document.getElementById('ai-model-text-recipe').innerText = nextModel.name;
             document.getElementById('ai-model-icon-idea').src = nextModel.icon;
-            document.getElementById('ai-model-text-idea').innerText = nextModel.name;
 
             const lang = STATE.lang;
             const msg = lang === 'en' ? `Switched to [${nextModel.name}] engine! 🚀` : 
@@ -1270,8 +1228,11 @@
             
             ['ai-chat-history', 'idea-chat-history'].forEach(id => {
                 const history = document.getElementById(id);
-                if(history) {
+                if(history && id === 'ai-chat-history') {
                     history.innerHTML += `<div class="mt-2 text-blue-500"><b>System：</b><span class="text-gray-700">${msg}</span></div>`;
+                    history.scrollTop = history.scrollHeight;
+                } else if (history && id === 'idea-chat-history') {
+                    history.innerHTML += `<div class="text-center text-xs text-gray-400 font-bold my-2 border-t-2 border-dashed border-gray-200 pt-2">${msg}</div>`;
                     history.scrollTop = history.scrollHeight;
                 }
             });
@@ -1280,11 +1241,7 @@
         window.toggleAIMode = (context) => {
             playClickSound();
             const lang = STATE.lang;
-            if (STATE.currentMode === "chef") {
-                STATE.currentMode = "grandma";
-            } else {
-                STATE.currentMode = "chef";
-            }
+            STATE.currentMode = STATE.currentMode === "chef" ? "grandma" : "chef";
 
             const iconStr = STATE.currentMode === "chef" ? "👨‍🍳" : "👵";
             const textStr = STATE.currentMode === "chef" ? I18N[lang].chefMode : I18N[lang].grandmaMode;
@@ -1292,13 +1249,14 @@
 
             document.getElementById('mode-icon-recipe').innerText = iconStr;
             document.getElementById('mode-text-recipe').innerText = textStr;
-            document.getElementById('mode-icon-idea').innerText = iconStr;
-            document.getElementById('mode-text-idea').innerText = textStr;
 
             ['ai-chat-history', 'idea-chat-history'].forEach(id => {
                 const history = document.getElementById(id);
-                if(history) {
+                if(history && id === 'ai-chat-history') {
                     history.innerHTML += `<div class="mt-2 text-yolk"><b>System：</b><span class="text-gray-700">${msg}</span></div>`;
+                    history.scrollTop = history.scrollHeight;
+                } else if (history && id === 'idea-chat-history') {
+                    history.innerHTML += `<div class="text-center text-xs text-yolk font-bold my-2 border-t-2 border-dashed border-gray-200 pt-2">${msg}</div>`;
                     history.scrollTop = history.scrollHeight;
                 }
             });
@@ -1420,7 +1378,6 @@
                     const safePrompt = encodeURIComponent(fullPrompt);
                     const safeSystem = encodeURIComponent(systemContent);
                     const url = `https://text.pollinations.ai/${safePrompt}?system=${safeSystem}&model=${targetModel}`;
-                    
                     const res = await fetch(url, { signal: window.aiAbortController.signal });
                     if (!res.ok) throw new Error(`API 呼叫失敗，狀態碼: ${res.status}`);
                     aiText = await res.text();
@@ -1456,16 +1413,13 @@
             history.scrollTop = history.scrollHeight;
         };
 
-        // 🌟 想菜譜的 AI：能產生 Emoji Youtube 傳送門 🌟
+        // 🌟 想菜譜 AI：完美還原圖3、圖4 的黑框氣泡與按鈕 🌟
         window.askIdeaAI = async () => {
             playClickSound(); 
             const input = document.getElementById('idea-ai-input');
             const history = document.getElementById('idea-chat-history');
-            const solutionsArea = document.getElementById('idea-solutions-area');
             const q = input.value.trim();
             if(!q) return;
-
-            solutionsArea.innerHTML = '';
 
             if(window.aiAbortController) window.aiAbortController.abort();
             window.aiAbortController = new AbortController();
@@ -1473,20 +1427,29 @@
             const stopBtn = document.getElementById('btn-stop-ai-idea');
             if(stopBtn) stopBtn.classList.remove('opacity-50', 'pointer-events-none');
 
-            if(history.innerText.includes('清冰箱')) history.innerHTML = '';
+            // 移除預設教學文字
+            if(history.innerHTML.includes('把你想清冰箱')) history.innerHTML = '';
 
-            history.innerHTML += `<div class="mt-2 text-right"><span class="bg-yolk/10 p-3 rounded-2xl inline-block text-gray-800 shadow-sm"><b>You：</b>${q}</span></div>`;
+            // YOU 氣泡 (圖3/4)
+            history.innerHTML += `<div class="text-right w-full flex justify-end"><div class="bubble-user">YOU: ${q}</div></div>`;
             input.value = '';
             
             const loadingId = 'idea-loading-' + Date.now();
             const aiName = STATE.currentMode === "grandma" ? (STATE.lang==='en'?"Granny":"阿嫲") : (STATE.lang==='en'?"Chef":"大廚");
             const thinkingArray = STATE.currentMode === "grandma" ? thinkingSentencesGrandma[STATE.lang] : thinkingSentencesChef[STATE.lang];
 
-            history.innerHTML += `<div id="${loadingId}" class="mt-4 text-yolk flex items-start gap-2"><div class="w-8 h-8 bg-yolk rounded-full flex items-center justify-center text-white shrink-0 shadow-sm"><i data-lucide="bot" class="w-4 h-4"></i></div><div><b>${aiName}：</b><span class="text-gray-700 leading-relaxed block mt-1">${thinkingArray[0]}</span></div></div>`;
+            // AI 氣泡結構
+            history.innerHTML += `
+                <div id="${loadingId}" class="w-full">
+                    <div class="bubble-ai inline-block">
+                        <span class="font-bold block mb-1">${aiName} :</span>
+                        <span class="ai-text-span">${thinkingArray[0]}</span>
+                    </div>
+                </div>`;
             history.scrollTop = history.scrollHeight;
-            safeCreateIcons();
 
-            const textSpan = document.getElementById(loadingId).querySelector('span');
+            const bubbleContainer = document.getElementById(loadingId);
+            const textSpan = bubbleContainer.querySelector('.ai-text-span');
             window.currentAITextSpan = textSpan; 
 
             let sentenceIndex = 0;
@@ -1498,11 +1461,11 @@
 
             let systemContent = "";
             if (STATE.lang === "en") {
-                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, you MUST end your message EXACTLY with: [INGREDIENTS: item1, item2]. If suggesting recipes, you MUST end your message EXACTLY with: [RECIPES: 🍳dish1, 🥘dish2] (must include an emoji before each dish name).`;
+                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, you MUST end your message EXACTLY with: [INGREDIENTS: item1, item2]. If suggesting recipes, you MUST end your message EXACTLY with: [RECIPES: 🍳dish1, 🥘dish2] (must include an emoji before each dish name). Do not use markdown bolding (**).`;
             } else if (STATE.lang === "yue") {
-                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 雞肉, 蒜頭]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍅番茄炒蛋, 🦐滑蛋蝦仁] (請務必在菜名前加上一個最對應的emoji)。`;
+                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 🧄 大蒜, 🧅 洋蔥]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍝 奶油蒜香蝦仁義大利麵] (請務必在菜名前加上一個最對應的emoji)。嚴禁使用Markdown粗體(**)。`;
             } else {
-                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 食材1, 食材2]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍅菜名1, 🦐菜名2] (請務必在菜名前加上一個最對應的emoji)。`;
+                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 🧄 大蒜, 🧅 洋蔥]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍝 奶油蒜香蝦仁義大利麵] (請務必在菜名前加上一個最對應的emoji)。嚴禁使用Markdown粗體(**)。`;
             }
 
             try {
@@ -1533,24 +1496,26 @@
                 let recipesMatch = recRegex.exec(aiText);
 
                 aiText = aiText.replace(ingRegex, '').replace(recRegex, '').trim();
-                textSpan.innerHTML = `<span class="text-gray-700">${aiText.replace(/\n/g, '<br>')}</span>`;
+                textSpan.innerHTML = aiText.replace(/\n/g, '<br>');
 
+                // 【圖3】AI 生成食材方塊
                 if (ingredientsMatch) {
                     const items = ingredientsMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (items.length > 0) {
-                        const tagsHtml = items.map(item => `<button onclick="addSlotIngredientByName('${item}')" class="px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-full text-xs font-bold active:scale-95 shadow-sm">+ ${item}</button>`).join('');
-                        textSpan.innerHTML += `
-                            <div class="mt-4 pt-3 border-t border-gray-100 flex flex-col gap-2">
-                                <span class="text-xs text-gray-400 font-bold">👇 點擊加入便簽紙：</span>
-                                <div class="flex flex-wrap gap-2">${tagsHtml}</div>
-                                <button onclick="askIdeaRecommendation()" class="mt-2 w-full bg-green-500 text-white py-2 rounded-xl text-sm font-bold shadow-md active:scale-95 transition-transform flex items-center justify-center gap-2">
-                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> 完成選材，幫我想菜譜！
-                                </button>
-                            </div>
-                        `;
+                        const tagsHtml = items.map(item => {
+                            const isActive = window.ideaIngredients.includes(item);
+                            const styleClass = isActive ? "bg-[#e6f4ea] border-green-500" : "bg-white border-gray-800";
+                            return `<button onclick="toggleIdeaIngredientTag('${item}', this)" class="idea-tag-btn border-2 ${styleClass} rounded-xl px-4 py-2 font-bold text-gray-800 text-sm active:scale-95 transition-colors shadow-sm">${item}</button>`;
+                        }).join('');
+                        
+                        bubbleContainer.innerHTML += `
+                            <div class="flex flex-wrap gap-2 mt-3 pl-1">
+                                ${tagsHtml}
+                            </div>`;
                     }
                 }
 
+                // 【圖4】AI 生成食譜方塊
                 if (recipesMatch) {
                     const dishes = recipesMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (dishes.length > 0) {
@@ -1562,29 +1527,26 @@
                             let cleanDish = dish.replace(emojiRegex, '').trim();
                             
                             return `
-                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(cleanDish + ' 食譜')}', '_blank')" class="flex-1 min-w-[140px] bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md active:scale-95 transition-all flex flex-col items-center gap-2 group">
-                                <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">${emoji}</div>
-                                <span class="font-bold text-gray-700 text-sm leading-tight text-center">${cleanDish}</span>
+                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(cleanDish + ' 食譜')}', '_blank')" class="w-full flex items-center border-2 border-gray-800 bg-white rounded-xl p-3 shadow-sm hover:shadow-md active:scale-95 transition-all text-left group">
+                                <span class="text-2xl mr-3 group-hover:scale-110 transition-transform">${emoji}</span>
+                                <span class="font-bold text-gray-800 text-lg flex-1">${cleanDish}</span>
                             </button>
                             `;
                         }).join('');
                         
-                        solutionsArea.innerHTML = `
-                            <div class="px-1"><span class="bg-red-50 text-red-600 border border-red-100 font-bold px-3 py-1 rounded-xl text-[11px]">📺 YouTube 教學傳送門</span></div>
-                            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pt-1">
+                        bubbleContainer.innerHTML += `
+                            <div class="flex flex-col gap-2 mt-3 pl-1 max-w-xs">
                                 ${cardsHtml}
-                            </div>
-                        `;
+                            </div>`;
                     }
                 }
-                safeCreateIcons();
 
             } catch (error) {
                 if (error.name === 'AbortError') return;
                 if(!window.isAIGenerating) return;
                 console.error("AI 連線失敗:", error);
                 clearInterval(window.aiThinkingInterval); 
-                textSpan.innerHTML = `<span class="text-gray-700">哎呀，阿嬤的網路好像斷了，晚點再試試喔！</span>`;
+                textSpan.innerHTML = `哎呀，網路好像斷了，晚點再試試喔！`;
             } finally {
                 if(window.isAIGenerating) {
                     window.isAIGenerating = false;
@@ -1594,14 +1556,38 @@
             history.scrollTop = history.scrollHeight;
         };
         
-        window.addSlotIngredientByName = (name) => {
+        // 🌟 點擊對話框裡的食材標籤 (還原圖3的選中/取消選中樣式) 🌟
+        window.toggleIdeaIngredientTag = (item, btnElement) => {
             playClickSound();
-            if(!window.ideaIngredients.includes(name)) {
-                window.ideaIngredients.push(name);
-                renderNotepadRows();
-                renderIngredientGrid();
+            const index = window.ideaIngredients.indexOf(item);
+            if (index > -1) {
+                // 已存在 -> 刪除 -> 變成白底黑框
+                window.ideaIngredients.splice(index, 1);
+                btnElement.classList.remove('bg-[#e6f4ea]', 'border-green-500');
+                btnElement.classList.add('bg-white', 'border-gray-800');
+            } else {
+                // 不存在 -> 新增 -> 變成綠底綠框
+                window.ideaIngredients.push(item);
+                btnElement.classList.remove('bg-white', 'border-gray-800');
+                btnElement.classList.add('bg-[#e6f4ea]', 'border-green-500');
             }
+            renderNotepadRows();
+            renderIngredientGrid();
         };
+
+        // 供其他地方刪除或新增時，同步更新聊天室裡的標籤狀態
+        function updateTagButtonsUI() {
+            document.querySelectorAll('.idea-tag-btn').forEach(btn => {
+                const itemText = btn.innerText.trim();
+                if (window.ideaIngredients.includes(itemText)) {
+                    btn.classList.remove('bg-white', 'border-gray-800');
+                    btn.classList.add('bg-[#e6f4ea]', 'border-green-500');
+                } else {
+                    btn.classList.remove('bg-[#e6f4ea]', 'border-green-500');
+                    btn.classList.add('bg-white', 'border-gray-800');
+                }
+            });
+        }
 
 
         window.toggleTimer = () => {
