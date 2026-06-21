@@ -62,36 +62,49 @@
         }
         .recipe-card:active { border-color: #FFB300; transform: scale(0.98); }
 
-        /* 🌟 阿嬤特製：卡通便簽紙樣式 🌟 */
-        .notepad {
-            background-color: #fef9e7; /* 泛黃復古紙張色 */
+        /* 🌟 重新設計的逼真卡通雙欄便簽紙 🌟 */
+        .notepad-wrapper {
+            background-color: #fef9e7; /* 復古紙張色 */
             border-radius: 12px;
-            box-shadow: 3px 5px 15px rgba(0,0,0,0.08);
-            position: relative;
-            padding-left: 45px;
-            background-image: repeating-linear-gradient(transparent, transparent 31px, #e1d5c9 31px, #e1d5c9 32px);
-            line-height: 32px;
-            min-height: 160px;
-            overflow: hidden;
+            box-shadow: 2px 4px 12px rgba(0,0,0,0.06);
             border: 1px solid #f0e6d2;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
         }
-        /* 紅色垂直分割線 */
-        .notepad::before {
-            content: '';
-            position: absolute;
-            top: 0; bottom: 0; left: 35px;
-            width: 2px;
-            background: #ff9e9e;
+        .notepad-left-line {
+            position: absolute; top: 0; bottom: 0; left: 35px; width: 2px; background: #ff9e9e; z-index: 10; pointer-events: none;
         }
-        /* 左側的卡通活頁本小洞洞 */
-        .hole-container { position: absolute; left: 8px; top: 0; bottom: 0; display: flex; flex-direction: column; gap: 20px; padding-top: 16px; }
-        .hole { width: 14px; height: 14px; background: #e5e5e5; border-radius: 50%; box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2); }
-        .notepad-row { display: flex; justify-content: space-between; align-items: center; padding-right: 12px; height: 32px; font-family: 'Comic Sans MS', 'Nunito', sans-serif; color: #555; }
-        .notepad-input { background: transparent; border: none; outline: none; width: 100%; height: 100%; font-size: 14px; color: #4A4A4A; }
+        .notepad-center-line {
+            position: absolute; top: 0; bottom: 0; left: calc(50% + 17.5px); border-left: 2px dashed #e1d5c9; z-index: 10; pointer-events: none;
+        }
+        .notepad-holes {
+            position: absolute; left: 10px; top: 12px; bottom: 0; display: flex; flex-direction: column; gap: 20px; z-index: 10; pointer-events: none;
+        }
+        .notepad-hole {
+            width: 12px; height: 12px; background: #e5e5e5; border-radius: 50%; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .notepad-scroll-area {
+            /* 4行高度：每一行32px -> 32*4 = 128px */
+            height: 128px;
+            overflow-y: auto;
+            padding-left: 42px; /* 避開紅線 */
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #e1d5c9 31px, #e1d5c9 32px);
+            background-attachment: local;
+            position: relative;
+        }
+        .notepad-row {
+            display: flex; height: 32px; align-items: center; position: relative; z-index: 20;
+        }
+        .notepad-slot {
+            width: 50%; height: 100%; display: flex; align-items: center; justify-content: space-between; px-2;
+            font-family: 'Comic Sans MS', 'Nunito', sans-serif; color: #555; font-size: 13px;
+        }
     </style>
 </head>
 <body>
     <div id="app-shell">
+        <!-- 頂部 Header -->
         <header class="pt-6 px-4 flex-none flex justify-between items-center z-20">
             <h1 class="text-xl font-black tracking-wider text-gray-600 ml-2" data-i18n="appTitle">完美鷄蛋</h1>
             <div class="flex gap-1.5">
@@ -110,6 +123,7 @@
         </header>
 
         <main class="flex-1 overflow-y-auto hide-scrollbar px-6 pt-4 pb-4 relative w-full">
+            <!-- (原定時器主畫面維持不變) -->
             <div id="settings-panel" class="space-y-6 transition-all duration-500">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="neu-flat p-3 flex flex-col items-center justify-center cursor-pointer neu-btn h-24" onclick="toggleTemp()">
@@ -153,14 +167,12 @@
                 <button id="btn-minus" disabled class="neu-flat w-12 h-12 rounded-full flex items-center justify-center text-gray-400 opacity-50 cursor-not-allowed transition-all duration-300 shrink-0 neu-btn">
                     <i data-lucide="minus" class="w-6 h-6 pointer-events-none"></i>
                 </button>
-                
                 <div class="relative w-64 h-64 flex items-center justify-center shrink-0">
                     <svg id="timer-svg" class="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 140 140">
                         <circle class="text-gray-200" stroke-width="6" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" />
                         <circle id="progress-ring" class="progress-ring__circle text-yolk" stroke-width="6" stroke-linecap="round" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" style="color: #FFB300;" />
                         <circle id="overtime-ring" class="progress-ring__circle opacity-0" stroke-width="6" stroke-linecap="round" stroke="currentColor" fill="transparent" r="64" cx="70" cy="70" style="color: #60A5FA;" />
                     </svg>
-
                     <div id="tracker-container" class="absolute inset-0 pointer-events-none z-20 flex items-center justify-center origin-center" style="transition: transform 0.1s linear;">
                         <div class="absolute" style="transform: translateY(-117px);">
                             <div id="tracker-icon-bg" class="bg-white rounded-full p-[4px] border-2 shadow-md flex items-center justify-center" style="transition: transform 0.1s linear, border-color 0.2s ease, color 0.2s ease;">
@@ -169,34 +181,29 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="flex flex-col items-center z-10 text-center">
                         <div id="timer-display" class="text-6xl font-black text-gray-700 tracking-tighter tabular-nums transition-colors duration-300">06:30</div>
                         <div id="timer-status" class="text-xs font-bold text-yolk mt-3 bg-white/80 px-4 py-1.5 rounded-full backdrop-blur-sm shadow-sm transition-all duration-300">水開後放入</div>
                     </div>
                 </div>
-
                 <button id="btn-plus" disabled class="neu-flat w-12 h-12 rounded-full flex items-center justify-center text-gray-400 opacity-50 cursor-not-allowed transition-all duration-300 shrink-0 neu-btn">
                     <i data-lucide="plus" class="w-6 h-6 pointer-events-none"></i>
                 </button>
             </div>
         </main>
 
+        <!-- 設定模態框 -->
         <div id="settings-modal" class="absolute inset-0 z-[70] bg-black/50 hidden items-center justify-center transition-opacity duration-300 opacity-0 px-6">
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 flex flex-col transform scale-95 transition-transform duration-300 shadow-2xl" id="settings-modal-content">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
                     <h3 class="font-black text-xl text-gray-800 flex items-center gap-2">
                         <i data-lucide="settings" class="w-6 h-6 text-yolk"></i> <span data-i18n="settingsTitle">設定</span>
                     </h3>
-                    <button onclick="closeSettings()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 header-action-btn">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
+                    <button onclick="closeSettings()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 header-action-btn"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
                 <div class="space-y-6">
                     <div>
-                        <h4 class="text-sm font-bold text-gray-500 mb-3 flex items-center gap-2">
-                            <i data-lucide="globe" class="w-4 h-4"></i> <span data-i18n="language">語言 (Language)</span>
-                        </h4>
+                        <h4 class="text-sm font-bold text-gray-500 mb-3 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4"></i> <span data-i18n="language">語言 (Language)</span></h4>
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="changeLanguage('tw')" id="btn-lang-tw" class="lang-btn py-2 rounded-xl text-xs font-bold border-2 border-yolk bg-yolk/10 text-yolk">繁體中文</button>
                             <button onclick="changeLanguage('yue')" id="btn-lang-yue" class="lang-btn py-2 rounded-xl text-xs font-bold border-2 border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100">粵語</button>
@@ -205,8 +212,7 @@
                     </div>
                     <div class="pt-4 border-t border-gray-100">
                         <button onclick="triggerIceWaterTest()" class="w-full neu-flat p-4 rounded-xl flex items-center justify-center gap-2 text-blue-500 font-bold active:scale-95 transition-transform bg-blue-50 hover:bg-blue-100">
-                            <i data-lucide="bug-play" class="w-5 h-5"></i>
-                            <span data-i18n="testMode">🛠️ 測試：過冷水模式</span>
+                            <i data-lucide="bug-play" class="w-5 h-5"></i><span data-i18n="testMode">🛠️ 測試：過冷水模式</span>
                         </button>
                     </div>
                 </div>
@@ -234,9 +240,7 @@
             <div class="pt-6 px-6 pb-4 flex items-center justify-between bg-bg/90 backdrop-blur sticky top-0 z-10">
                 <button onclick="closeRecipeCollection()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
                 <h2 class="text-lg font-black text-gray-700" data-i18n="recipeInspo">蛋料理靈感</h2>
-                <button onclick="openHelpModal()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
-                </button>
+                <button onclick="openHelpModal()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600"><i data-lucide="help-circle" class="w-5 h-5"></i></button>
             </div>
             <div class="flex-1 overflow-y-auto p-6 space-y-6 pb-20">
                 <div class="neu-flat p-3 flex items-center gap-3">
@@ -280,20 +284,10 @@
                     <div><h3 class="font-bold mb-3 text-gray-800 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-yolk"></i> <span data-i18n="steps">烹飪步驟</span></h3><div id="detail-steps" class="text-sm text-gray-600 space-y-4"></div></div>
                     
                     <div class="neu-flat p-4 border-t-4 border-t-yolk mt-6 mb-8">
+                        <!-- Detail 頁面的 AI 助手保留原本結構，僅套用新按鈕樣式保持一致 -->
                         <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 mb-2 w-full">
                             <div class="w-7 h-7 bg-yolk rounded-full flex items-center justify-center text-white shrink-0"><i data-lucide="bot" class="w-4 h-4"></i></div>
                             <h3 class="font-bold text-gray-800 shrink-0 whitespace-nowrap text-sm mr-1" data-i18n="aiAssistant">智慧廚藝助手</h3>
-                            
-                            <button onclick="toggleAIModel('recipe')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                                <img id="ai-model-icon-recipe" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
-                                <span id="ai-model-text-recipe" class="whitespace-nowrap">Puter</span>
-                                <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                            </button>
-                            
-                            <button onclick="toggleAIMode('recipe')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                                <span id="mode-icon-recipe" class="text-sm shrink-0">👨‍🍳</span>
-                                <span id="mode-text-recipe" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
-                            </button>
                         </div>
 
                         <div id="ai-chat-history" class="text-xs text-gray-600 mb-4 max-h-40 overflow-y-auto space-y-2 leading-relaxed bg-white p-3 rounded-xl border border-gray-100"></div>
@@ -301,7 +295,16 @@
                         <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar items-center pb-1">
                             <button onclick="sendJoke()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="joke">😂 講個笑話</button>
                             <button onclick="sendSecret()" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm" data-i18n="secret">🤫 不敗秘訣</button>
-                            <button onclick="stopAI('recipe')" id="btn-stop-ai-recipe" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" data-i18n="stopAnswer">⛔ 停止回答</button>
+                            <button onclick="stopAI('recipe')" id="btn-stop-ai-recipe" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none" data-i18n="stopAnswer">⛔ 停止</button>
+                            <div class="w-[1px] h-4 bg-gray-300 mx-1 shrink-0"></div>
+                            <button onclick="toggleAIModel('recipe')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                                <img id="ai-model-icon-recipe" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
+                                <span id="ai-model-text-recipe" class="whitespace-nowrap">Puter</span>
+                            </button>
+                            <button onclick="toggleAIMode('recipe')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                                <span id="mode-icon-recipe" class="text-sm shrink-0">👨‍🍳</span>
+                                <span id="mode-text-recipe" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
+                            </button>
                         </div>
                         
                         <div class="flex gap-2">
@@ -313,56 +316,87 @@
             </div>
         </div>
 
+        <!-- 🌟 乖孫專屬：全螢幕 AI 想菜譜 模態框 (全面升級版) 🌟 -->
         <div id="idea-modal" class="absolute inset-0 z-[65] bg-bg hidden flex-col overflow-hidden">
+            <!-- 加大版標題 -->
             <div class="pt-6 px-6 pb-4 flex items-center justify-between bg-bg/90 backdrop-blur sticky top-0 z-10 border-b border-gray-200">
                 <button onclick="closeIdeaModal()" class="neu-flat header-action-btn w-10 h-10 flex items-center justify-center text-gray-600"><i data-lucide="chevron-down" class="w-6 h-6"></i></button>
-                <h2 class="text-lg font-black text-gray-700 flex items-center gap-2">
-                    <i data-lucide="cooking-pot" class="w-5 h-5 text-yolk"></i> AI 想菜譜
+                <h2 class="text-2xl font-black text-gray-700 flex items-center gap-2 tracking-wide">
+                    <i data-lucide="cooking-pot" class="w-6 h-6 text-yolk"></i> AI 想菜譜
                 </h2>
-                <div class="w-10 h-10"></div> </div>
+                <div class="w-10 h-10"></div> 
+            </div>
             
             <div class="flex-1 overflow-y-auto p-6 space-y-6 pb-24 flex flex-col">
-                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 mb-2 w-full justify-center">
-                    <button onclick="toggleAIModel('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                        <img id="ai-model-icon-idea" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
-                        <span id="ai-model-text-idea" class="whitespace-nowrap">Puter</span>
-                        <i data-lucide="refresh-cw" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                    </button>
-                    <button onclick="toggleAIMode('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
-                        <span id="mode-icon-idea" class="text-sm shrink-0">👨‍🍳</span>
-                        <span id="mode-text-idea" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
-                    </button>
-                </div>
-
-                <div class="notepad w-full relative">
-                    <div class="hole-container">
-                        <div class="hole"></div><div class="hole"></div><div class="hole"></div><div class="hole"></div><div class="hole"></div>
+                
+                <!-- 🌟 重新設計的逼真卡通雙欄便簽紙 🌟 -->
+                <div class="notepad-wrapper">
+                    <!-- 左側紅線 -->
+                    <div class="notepad-left-line"></div>
+                    <!-- 中間虛線 -->
+                    <div class="notepad-center-line"></div>
+                    <!-- 左側活頁洞洞 -->
+                    <div class="notepad-holes">
+                        <div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div><div class="notepad-hole"></div>
                     </div>
-                    <div class="font-black text-gray-600 tracking-wider text-sm pt-2 mb-1 opacity-80 pl-2">🧺 目前食材清單</div>
-                    <div id="notepad-rows" class="flex flex-col">
+
+                    <!-- 標題區 (不隨線條滾動，固定在上方) -->
+                    <div class="pl-[42px] pt-3 pb-1 border-b border-dashed border-[#e1d5c9] bg-[#fef9e7] relative z-20">
+                        <span class="font-black text-gray-500 tracking-widest text-sm">🧺 目前食材清單</span>
+                    </div>
+
+                    <!-- 內文滾動區 (4行高) -->
+                    <div id="notepad-scroll-area" class="notepad-scroll-area hide-scrollbar">
+                        <div id="notepad-rows" class="flex flex-col">
+                            <!-- JS 動態生成槽位 -->
                         </div>
-                    <div class="notepad-row">
-                        <input type="text" id="custom-ingredient-input" placeholder="打字新增冰箱裡的食材..." class="notepad-input pl-2" onkeypress="if(event.key === 'Enter') addIngredientFromInput()">
-                        <button onclick="addIngredientFromInput()" class="w-6 h-6 bg-yolk text-white rounded-full flex items-center justify-center shrink-0 shadow-sm active:scale-90"><i data-lucide="plus" class="w-4 h-4"></i></button>
                     </div>
                 </div>
 
-                <div class="flex justify-center mt-2">
-                    <button onclick="askIdeaRecommendation()" class="bg-gray-800 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 active:scale-95 transition-transform"><i data-lucide="sparkles" class="w-4 h-4 text-yolk"></i> 推薦食譜給我</button>
+                <!-- 🌟 並排操作按鈕區 🌟 -->
+                <div class="flex gap-3">
+                    <button onclick="askIdeaRecommendation()" class="flex-1 bg-yellow-100 text-yellow-700 py-3 rounded-2xl font-black shadow-sm active:scale-95 transition-transform flex justify-center items-center gap-2 border border-yellow-200">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> 推薦食譜
+                    </button>
+                    <button onclick="toggleIngredientGrid()" class="flex-1 bg-yellow-100 text-yellow-700 py-3 rounded-2xl font-black shadow-sm active:scale-95 transition-transform flex justify-center items-center gap-2 border border-yellow-200">
+                        <i data-lucide="list-plus" class="w-4 h-4"></i> 選擇食材
+                    </button>
                 </div>
 
-                <div id="idea-chat-history" class="text-sm text-gray-600 mb-4 flex-1 space-y-4 leading-relaxed bg-white p-4 rounded-2xl border border-gray-100 shadow-sm min-h-[200px]">
-                    <div class="text-gray-500 italic text-center mt-10">把你想清冰箱的食材告訴我，或者問我有什麼推薦！</div>
-                </div>
-
-                <div id="idea-solutions-area" class="flex flex-col gap-2 empty:hidden"></div>
-
-                <div class="flex flex-col gap-2 mt-auto pt-2 bg-bg relative">
-                    <div class="flex gap-2 overflow-x-auto hide-scrollbar items-center pb-1">
-                        <button onclick="sendQuickIdea('不知道吃什麼，推薦點百搭食材給我吧！')" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm">🤔 不知道吃什麼</button>
-                        <button onclick="sendQuickIdea('有沒有清淡一點的作法？')" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm">🥗 清淡一點</button>
-                        <button onclick="stopAI('idea')" id="btn-stop-ai-idea" class="shrink-0 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-full text-[10px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none">⛔ 停止</button>
+                <!-- 🌟 5x4 食材擴充網格 🌟 -->
+                <div id="ingredient-grid-panel" class="hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-4 transform transition-all">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2" id="ingredient-grid-container">
+                        <!-- JS 動態渲染 -->
                     </div>
+                </div>
+
+                <!-- 追問泡泡 & YouTube 卡片區 -->
+                <div id="idea-solutions-area" class="flex flex-col gap-2 empty:hidden mt-2"></div>
+
+                <!-- AI 聊天紀錄區 (加大版) -->
+                <div id="idea-chat-history" class="text-sm text-gray-600 mb-2 flex-1 space-y-4 leading-relaxed bg-white p-5 rounded-2xl border border-gray-100 shadow-sm min-h-[240px]">
+                    <div class="text-gray-400 italic text-center mt-12">快把你想清冰箱的食材加進上面便簽紙，<br>或者直接問我有什麼推薦吧！</div>
+                </div>
+
+                <!-- 底部操作列 (根據要求排列) -->
+                <div class="flex flex-col gap-3 mt-auto bg-bg relative">
+                    <div class="flex gap-2 overflow-x-auto hide-scrollbar items-center pb-1 w-full">
+                        <button onclick="sendQuickIdea('不知道吃什麼，推薦點百搭食材給我吧！')" class="shrink-0 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm">🤔 不知道吃什麼</button>
+                        <button onclick="sendQuickIdea('有沒有清淡一點的作法？')" class="shrink-0 px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm">🥗 清淡一點</button>
+                        <button onclick="stopAI('idea')" id="btn-stop-ai-idea" class="shrink-0 px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-500 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm opacity-50 pointer-events-none">⛔ 停止</button>
+                        
+                        <!-- AI & Mode 切換按鈕移動到最右側 -->
+                        <div class="w-[1px] h-4 bg-gray-300 mx-1 shrink-0"></div>
+                        <button onclick="toggleAIModel('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-white text-gray-600 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                            <img id="ai-model-icon-idea" src="https://cdn.jsdelivr.net/gh/HUHuHuuHOuO/click@main/puter%20AI.png" class="w-3.5 h-3.5 object-contain shrink-0" alt="AI Icon">
+                            <span id="ai-model-text-idea" class="whitespace-nowrap">Puter</span>
+                        </button>
+                        <button onclick="toggleAIMode('idea')" class="shrink-0 flex items-center justify-center gap-1.5 bg-white text-gray-600 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all active:scale-95 shadow-sm border border-gray-200">
+                            <span id="mode-icon-idea" class="text-sm shrink-0">👨‍🍳</span>
+                            <span id="mode-text-idea" class="whitespace-nowrap" data-i18n="chefMode">大廚模式</span>
+                        </button>
+                    </div>
+
                     <div class="flex gap-2">
                         <input type="text" id="idea-ai-input" placeholder="告訴我你還有什麼食材..." class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-yolk shadow-sm" onclick="playClickSound()" onkeypress="if(event.key === 'Enter') askIdeaAI()">
                         <button onclick="askIdeaAI()" class="bg-yolk text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-transform"><i data-lucide="send" class="w-5 h-5"></i></button>
@@ -450,7 +484,7 @@
                 grandmaMode: "阿嫲模式", joke: "😂 講個笑話", secret: "🤫 不敗秘訣", send: "發送", inputPlaceholder: "輸入問題...",
                 selectSizeModal: "選擇雞蛋規格", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷水模式",
                 noRecipes: "暫無相關食譜", helpTitle: "使用說明", aiWelcome: "我是你的蛋料理專家！有任何問題都可以問我喔！",
-                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！", stopAnswer: "⛔ 停止回答",
+                aiSystemChef: "已切換至【大廚模式】！👨‍🍳", aiSystemGrandma: "已切換至【阿嫲模式】！👵 可以開始問阿嫲問題囉！", stopAnswer: "⛔ 停止",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 關於食譜：</b><br>這裡收錄了多種精選蛋料理，點擊卡片即可查看詳細步驟與教學影片。若設備為首次使用該html網站 加載圖片可能會稍慢。</p>
                     <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請您手動跳轉到youtube</p>
@@ -459,7 +493,7 @@
                 <p class="px-1 mt-4 text-gray-600"><b>🙏 感謝：</b><br>各大youtube教程影片提供者, 馬田, 豆包AI, Gemini, deepseek, cookpad......</p>`
             },
             en: {
-                appTitle: "Perfect Egg", moreRecipes: "More", settings: "Settings", aiIdea: "AI Recipe",
+                appTitle: "Perfect Egg", moreRecipes: "More", settings: "Settings", aiIdea: "Recipe AI",
                 initTemp: "Init Temp", fridge: "Fridge", room: "Room",
                 eggSize: "Egg Size", stoveWatt: "Stove Wattage", targetDoneness: "Target Doneness", startCooking: "Start", stopCooking: "Stop",
                 cooking: "Cooking...", putInBoiling: "Put in boiling water", iceCooling: "Cooling...", coolingDone: "Cooling Done!", timeUp: "Time's Up!",
@@ -469,7 +503,7 @@
                 grandmaMode: "Granny Mode", joke: "😂 Tell a joke", secret: "🤫 Secret Tip", send: "Send", inputPlaceholder: "Ask a question...",
                 selectSizeModal: "Select Egg Size", settingsTitle: "Settings", language: "Language", testMode: "🛠️ Test: Ice Water Mode",
                 noRecipes: "No recipes found", helpTitle: "How to use", aiWelcome: "I am your egg expert! Ask me anything!",
-                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!", stopAnswer: "⛔ Stop AI",
+                aiSystemChef: "Switched to [Chef Mode]! 👨‍🍳", aiSystemGrandma: "Switched to [Granny Mode]! 👵 Ask Granny anything!", stopAnswer: "⛔ Stop",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 About Recipes:</b><br>Explore our curated list of egg recipes. Click the cards to view detailed steps and videos. (Images may load slightly slower on your first visit to this site.)</p>
                     <p><b>🍳 Video Notice:</b><br>Some videos are sourced from YouTube. If they fail to play, please manually open them on YouTube.</p>
@@ -488,7 +522,7 @@
                 grandmaMode: "阿婆模式", joke: "😂 講個笑話", secret: "🤫 必勝秘訣", send: "發送", inputPlaceholder: "問啲嘢啦...",
                 selectSizeModal: "雞蛋大細", settingsTitle: "設定", language: "語言 (Language)", testMode: "🛠️ 測試：過冷河模式",
                 noRecipes: "暫時冇呢個食譜", helpTitle: "點用？", aiWelcome: "我係你嘅專屬廚神！有咩唔明即問即答！",
-                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！", stopAnswer: "⛔ 停止回答",
+                aiSystemChef: "轉咗去【大廚模式】！👨‍🍳", aiSystemGrandma: "轉咗去【阿婆模式】！👵 可以開始問阿婆嘢喇！", stopAnswer: "⛔ 停止",
                 helpText: `<div class="p-4 bg-yolk/10 rounded-xl border border-yolk/30 text-gray-700 mt-2 space-y-3">
                     <p><b>🥚 關於食譜：</b><br>呢度有好多精選蛋料理，㩒D卡片就可以睇D步驟同片。如果設備係第一次用呢個html網站 加載ge圖片可能會比較慢。</p>
                     <p><b>🍳 影片播放注意事項：</b><br>部分影片使用 YouTube 來源，若無法播放，請你高擡玉手手動跳轉到youtube</p>
@@ -574,8 +608,14 @@
         let holdInterval;
         let timerInterval = null;
         
-        // 🌟 儲存目前便簽紙上的食材
+        // 🌟 新增：便簽紙資料庫與網格選單 🌟
         window.ideaIngredients = [];
+        const INGREDIENT_GRID = [
+            '🥚 鷄蛋', '🥓 培根', '🍅 番茄', '🧅 洋蔥', '🥬 高麗菜',
+            '🧀 起司', '🦐 蝦仁', '🍗 鷄肉', '🥩 牛肉', '🐟 魚肉',
+            '🍄 蘑菇', '🥔 馬鈴薯', '🥕 胡蘿蔔', '🌶️ 辣椒', '🧄 蒜頭',
+            '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸'
+        ];
 
         function init() {
             try {
@@ -591,10 +631,9 @@
                 
                 setupHoldButtons(); 
                 renderTips(STATE.doneness); 
-                renderNotepadRows(); // 渲染空便簽紙
-            } catch(e) {
-                console.error("Init Error:", e);
-            }
+                renderNotepadRows(); // 渲染新的左右雙欄便簽紙
+                renderIngredientGrid(); // 渲染選單網格
+            } catch(e) { console.error("Init Error:", e); }
         }
 
         window.applyLanguage = () => {
@@ -667,12 +706,15 @@
             setTimeout(() => { modal.classList.remove('flex'); modal.classList.add('hidden'); }, 300);
         };
 
-        // 🌟 新增：打開/關閉 AI 想菜譜 🌟
+        // 🌟 新增：打開/關閉 全螢幕AI想菜譜 🌟
         window.openIdeaModal = () => {
             playClickSound(); 
             document.getElementById('idea-modal').classList.remove('hidden');
             document.getElementById('idea-modal').classList.add('flex');
             safeCreateIcons();
+            // 自動滾動到底部
+            const scrollArea = document.getElementById('notepad-scroll-area');
+            scrollArea.scrollTop = scrollArea.scrollHeight;
         };
 
         window.closeIdeaModal = () => {
@@ -681,15 +723,53 @@
             document.getElementById('idea-modal').classList.remove('flex');
         };
 
-        // 🌟 新增：便簽紙功能邏輯 🌟
-        window.addIngredientFromInput = () => {
-            const input = document.getElementById('custom-ingredient-input');
+        // 🌟 核心：渲染雙欄便簽紙 🌟
+        window.renderNotepadRows = () => {
+            const container = document.getElementById('notepad-rows');
+            let items = [...window.ideaIngredients];
+            
+            // 至少顯示 8 個槽位 (4 行)，如果超過則以偶數向上遞增
+            let totalSlots = Math.max(8, Math.ceil((items.length + 2) / 2) * 2);
+            let html = '';
+            
+            for (let i = 0; i < totalSlots; i += 2) {
+                html += `<div class="notepad-row">`;
+                html += renderNotepadSlot(i, items[i]);     // 左半邊
+                html += renderNotepadSlot(i+1, items[i+1]); // 右半邊
+                html += `</div>`;
+            }
+            container.innerHTML = html;
+            safeCreateIcons();
+
+            // 讓它自動滾到最下面
+            const scrollArea = document.getElementById('notepad-scroll-area');
+            scrollArea.scrollTop = scrollArea.scrollHeight;
+        };
+
+        function renderNotepadSlot(index, item) {
+            if (item) {
+                return `
+                <div class="notepad-slot group pr-3 relative">
+                    <span class="font-bold truncate text-gray-700 w-[90%]" title="${item}">${item}</span>
+                    <button onclick="removeIngredient(${index})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                </div>`;
+            } else {
+                return `
+                <div class="notepad-slot pr-3 relative">
+                    <input type="text" id="slot-input-${index}" class="bg-transparent border-none outline-none w-[80%] text-gray-600" placeholder="" onkeypress="if(event.key === 'Enter') addSlotIngredient(${index})">
+                    <button onclick="addSlotIngredient(${index})" class="text-gray-300 hover:text-yolk transition-colors absolute right-2"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
+                </div>`;
+            }
+        }
+
+        window.addSlotIngredient = (index) => {
+            const input = document.getElementById('slot-input-' + index);
             const val = input.value.trim();
-            if (val) {
+            if(val) {
                 playClickSound();
-                window.ideaIngredients.push(val);
-                input.value = '';
+                window.ideaIngredients.push(val); // 固定推到陣列最後面
                 renderNotepadRows();
+                renderIngredientGrid(); // 同步網格
             }
         };
 
@@ -697,30 +777,45 @@
             playClickSound();
             window.ideaIngredients.splice(index, 1);
             renderNotepadRows();
+            renderIngredientGrid(); // 同步網格
         };
 
-        window.addAutoIngredient = (itemName) => {
+        // 🌟 網格選單邏輯 🌟
+        window.toggleIngredientGrid = () => {
             playClickSound();
-            if(!window.ideaIngredients.includes(itemName)){
-                window.ideaIngredients.push(itemName);
-                renderNotepadRows();
+            const panel = document.getElementById('ingredient-grid-panel');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
             }
         };
 
-        function renderNotepadRows() {
-            const container = document.getElementById('notepad-rows');
-            if(window.ideaIngredients.length === 0) {
-                container.innerHTML = `<div class="notepad-row text-gray-400 text-sm pl-2">目前空空的喔...</div>`;
-                return;
+        window.renderIngredientGrid = () => {
+            const container = document.getElementById('ingredient-grid-container');
+            container.innerHTML = INGREDIENT_GRID.map(item => {
+                const isSelected = window.ideaIngredients.includes(item);
+                const boxStr = isSelected ? '<span class="text-yolk font-black text-lg">☑</span>' : '<span class="text-gray-300 font-bold text-lg">□</span>';
+                const bgClass = isSelected ? 'bg-yellow-50 border-yellow-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:bg-gray-100';
+                
+                return `
+                <button onclick="toggleGridItem('${item}')" class="flex justify-between items-center px-3 py-2 rounded-xl border transition-all active:scale-95 ${bgClass}">
+                    <span class="text-xs font-bold text-gray-700">${item}</span>
+                    ${boxStr}
+                </button>`;
+            }).join('');
+        };
+
+        window.toggleGridItem = (item) => {
+            playClickSound();
+            if (window.ideaIngredients.includes(item)) {
+                window.ideaIngredients = window.ideaIngredients.filter(i => i !== item);
+            } else {
+                window.ideaIngredients.push(item);
             }
-            container.innerHTML = window.ideaIngredients.map((item, idx) => `
-                <div class="notepad-row group">
-                    <span class="pl-2 font-bold">${idx + 1}. ${item}</span>
-                    <button onclick="removeIngredient(${idx})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            `).join('');
-            safeCreateIcons();
-        }
+            renderIngredientGrid();
+            renderNotepadRows();
+        };
 
         window.sendQuickIdea = (text) => {
             playClickSound();
@@ -1163,7 +1258,6 @@
             
             STATE.aiModel = nextModel.id;
 
-            // 更新兩個地方的圖標
             document.getElementById('ai-model-icon-recipe').src = nextModel.icon;
             document.getElementById('ai-model-text-recipe').innerText = nextModel.name;
             document.getElementById('ai-model-icon-idea').src = nextModel.icon;
@@ -1174,7 +1268,6 @@
                         lang === 'yue' ? `轉咗去【${nextModel.name}】大腦引擎！🚀` : 
                         `已切換至【${nextModel.name}】大腦引擎！🚀`;
             
-            // 在兩個對話框都顯示提示
             ['ai-chat-history', 'idea-chat-history'].forEach(id => {
                 const history = document.getElementById(id);
                 if(history) {
@@ -1193,7 +1286,6 @@
                 STATE.currentMode = "chef";
             }
 
-            // 更新兩個地方的UI
             const iconStr = STATE.currentMode === "chef" ? "👨‍🍳" : "👵";
             const textStr = STATE.currentMode === "chef" ? I18N[lang].chefMode : I18N[lang].grandmaMode;
             const msg = STATE.currentMode === "chef" ? I18N[lang].aiSystemChef : I18N[lang].aiSystemGrandma;
@@ -1246,7 +1338,6 @@
             }
         };
 
-        // 🌟 煞車系統 🌟
         window.aiThinkingInterval = null;
         window.aiAbortController = null;
         window.isAIGenerating = false;
@@ -1269,7 +1360,6 @@
             }
         };
 
-        // 🌟 Recipe Detail 的普通聊天 🌟
         window.askAI = async () => {
             playClickSound(); 
             const input = document.getElementById('ai-input');
@@ -1366,7 +1456,7 @@
             history.scrollTop = history.scrollHeight;
         };
 
-        // 🌟 專屬想菜譜的 AI：會解析推薦食材與食譜卡片 🌟
+        // 🌟 想菜譜的 AI：能產生 Emoji Youtube 傳送門 🌟
         window.askIdeaAI = async () => {
             playClickSound(); 
             const input = document.getElementById('idea-ai-input');
@@ -1375,7 +1465,7 @@
             const q = input.value.trim();
             if(!q) return;
 
-            solutionsArea.innerHTML = ''; // 清空上一次的卡片
+            solutionsArea.innerHTML = '';
 
             if(window.aiAbortController) window.aiAbortController.abort();
             window.aiAbortController = new AbortController();
@@ -1383,7 +1473,6 @@
             const stopBtn = document.getElementById('btn-stop-ai-idea');
             if(stopBtn) stopBtn.classList.remove('opacity-50', 'pointer-events-none');
 
-            // 移除中心預設字
             if(history.innerText.includes('清冰箱')) history.innerHTML = '';
 
             history.innerHTML += `<div class="mt-2 text-right"><span class="bg-yolk/10 p-3 rounded-2xl inline-block text-gray-800 shadow-sm"><b>You：</b>${q}</span></div>`;
@@ -1407,14 +1496,13 @@
                 if(window.isAIGenerating) textSpan.innerText = thinkingArray[sentenceIndex];
             }, 1000);
 
-            // 🌟 嚴格的 System Prompt 要求格式輸出
             let systemContent = "";
             if (STATE.lang === "en") {
-                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, you MUST end your message EXACTLY with: [INGREDIENTS: item1, item2]. If suggesting recipes, you MUST end your message EXACTLY with: [RECIPES: dish1, dish2, dish3].`;
+                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, you MUST end your message EXACTLY with: [INGREDIENTS: item1, item2]. If suggesting recipes, you MUST end your message EXACTLY with: [RECIPES: 🍳dish1, 🥘dish2] (must include an emoji before each dish name).`;
             } else if (STATE.lang === "yue") {
-                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 雞肉, 蒜頭]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 番茄炒蛋, 滑蛋蝦仁, 蒸水蛋]。`;
+                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 雞肉, 蒜頭]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍅番茄炒蛋, 🦐滑蛋蝦仁] (請務必在菜名前加上一個最對應的emoji)。`;
             } else {
-                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 食材1, 食材2]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 菜名1, 菜名2, 菜名3]。`;
+                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須嚴格輸出 [INGREDIENTS: 食材1, 食材2]。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍅菜名1, 🦐菜名2] (請務必在菜名前加上一個最對應的emoji)。`;
             }
 
             try {
@@ -1438,22 +1526,19 @@
                 if(!window.isAIGenerating) return; 
                 clearInterval(window.aiThinkingInterval); 
 
-                // 🌟 解析 AI 魔法標籤 🌟
                 const ingRegex = /\[INGREDIENTS:\s*(.*?)\]/i;
                 const recRegex = /\[RECIPES:\s*(.*?)\]/i;
 
                 let ingredientsMatch = ingRegex.exec(aiText);
                 let recipesMatch = recRegex.exec(aiText);
 
-                // 把標籤從顯示文字中清掉
                 aiText = aiText.replace(ingRegex, '').replace(recRegex, '').trim();
                 textSpan.innerHTML = `<span class="text-gray-700">${aiText.replace(/\n/g, '<br>')}</span>`;
 
-                // 1. 如果有食材推薦 -> 生成可點擊的綠色食材標籤
                 if (ingredientsMatch) {
                     const items = ingredientsMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (items.length > 0) {
-                        const tagsHtml = items.map(item => `<button onclick="addAutoIngredient('${item}')" class="px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-full text-xs font-bold active:scale-95 shadow-sm">+ ${item}</button>`).join('');
+                        const tagsHtml = items.map(item => `<button onclick="addSlotIngredientByName('${item}')" class="px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-full text-xs font-bold active:scale-95 shadow-sm">+ ${item}</button>`).join('');
                         textSpan.innerHTML += `
                             <div class="mt-4 pt-3 border-t border-gray-100 flex flex-col gap-2">
                                 <span class="text-xs text-gray-400 font-bold">👇 點擊加入便簽紙：</span>
@@ -1466,20 +1551,27 @@
                     }
                 }
 
-                // 2. 如果有食譜推薦 -> 生成 YouTube 卡片
                 if (recipesMatch) {
                     const dishes = recipesMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (dishes.length > 0) {
-                        const cardsHtml = dishes.map(dish => `
-                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(dish + ' 食譜')}', '_blank')" class="flex-1 min-w-[120px] bg-red-50 border border-red-200 p-3 rounded-2xl shadow-sm hover:shadow-md active:scale-95 transition-all text-left group flex flex-col gap-2">
-                                <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform"><i data-lucide="youtube" class="w-3.5 h-3.5"></i></div>
-                                <span class="font-bold text-red-700 text-sm leading-tight">${dish}</span>
+                        const emojiRegex = /([\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}])/u;
+                        
+                        const cardsHtml = dishes.map(dish => {
+                            let match = emojiRegex.exec(dish);
+                            let emoji = match ? match[1] : '🍽️';
+                            let cleanDish = dish.replace(emojiRegex, '').trim();
+                            
+                            return `
+                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(cleanDish + ' 食譜')}', '_blank')" class="flex-1 min-w-[140px] bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:shadow-md active:scale-95 transition-all flex flex-col items-center gap-2 group">
+                                <div class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">${emoji}</div>
+                                <span class="font-bold text-gray-700 text-sm leading-tight text-center">${cleanDish}</span>
                             </button>
-                        `).join('');
+                            `;
+                        }).join('');
                         
                         solutionsArea.innerHTML = `
-                            <div class="px-1 mb-1 text-xs font-bold text-gray-400">📺 YouTube 教學傳送門：</div>
-                            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+                            <div class="px-1"><span class="bg-red-50 text-red-600 border border-red-100 font-bold px-3 py-1 rounded-xl text-[11px]">📺 YouTube 教學傳送門</span></div>
+                            <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pt-1">
                                 ${cardsHtml}
                             </div>
                         `;
@@ -1490,7 +1582,6 @@
             } catch (error) {
                 if (error.name === 'AbortError') return;
                 if(!window.isAIGenerating) return;
-
                 console.error("AI 連線失敗:", error);
                 clearInterval(window.aiThinkingInterval); 
                 textSpan.innerHTML = `<span class="text-gray-700">哎呀，阿嬤的網路好像斷了，晚點再試試喔！</span>`;
@@ -1501,6 +1592,15 @@
                 }
             }
             history.scrollTop = history.scrollHeight;
+        };
+        
+        window.addSlotIngredientByName = (name) => {
+            playClickSound();
+            if(!window.ideaIngredients.includes(name)) {
+                window.ideaIngredients.push(name);
+                renderNotepadRows();
+                renderIngredientGrid();
+            }
         };
 
 
