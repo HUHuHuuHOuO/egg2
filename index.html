@@ -574,37 +574,42 @@
             '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸'
         ];
 
-        // ================= 被阿嬤弄丟的核心功能區 復活 =================
+        // ================= 修復與上色區域 =================
 
-        function renderTips(idx) {
-            const tipsPanel = document.getElementById('tips-panel');
-            if(!tipsPanel) return;
-            const data = DONENESS_DATA[idx];
-            const lang = STATE.lang;
-            tipsPanel.innerHTML = data.tips.map(tip => {
-                const desc = T(tip.desc);
-                return `
-                    <div class="flex items-start gap-3 p-3 bg-white rounded-2xl shadow-sm border border-gray-100 cursor-pointer active:scale-95 transition-transform" onclick="fallbackVideoHandler(${tip.recipeId}, '${tip.ytLink}', ${tip.fallbackId})">
-                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 text-white shadow-inner" style="background-color: ${data.tipBackgroundColor}">${tip.emoji}</div>
-                        <div class="flex-1 min-w-0 flex flex-col justify-center">
-                            <p class="text-xs text-gray-600 font-bold leading-relaxed line-clamp-2">${desc}</p>
-                            <span class="text-[10px] text-yolk mt-1 font-black tracking-wider flex items-center gap-1"><i data-lucide="play-circle" class="w-3 h-3"></i> ${I18N[lang].watchVideo}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            safeCreateIcons();
-        }
-
-        window.fallbackVideoHandler = (recipeId, ytLink, fallbackId) => {
+        window.handleTipClick = (recipeId, ytLink, fallbackId) => {
             playClickSound();
-            if (recipeId) {
-                openRecipeDetail(recipeId);
-            } else if (fallbackId) {
-                openRecipeDetail(fallbackId);
-            } else {
-                alert(STATE.lang === 'en' ? "Coming soon!" : "影片準備中！");
-            }
+            if (recipeId === null && ytLink === null && fallbackId === null) return; 
+            if (recipeId && RECIPES.some(r => r.id === recipeId)) { openRecipeDetail(recipeId); } 
+            else if (ytLink && ytLink !== 'null') { window.open(ytLink, '_blank'); } 
+            else if (fallbackId && RECIPES.some(r => r.id === fallbackId)) { openRecipeDetail(fallbackId); } 
+            else { openRecipeCollection(); }
+        };
+
+        window.renderTips = (idx) => {
+            const container = document.getElementById('tips-panel');
+            if (!container) return; 
+            const d = DONENESS_DATA[idx];
+            const tips = d.tips;
+            const lang = STATE.lang;
+
+            // 恢復原本的滿版顏色背景區塊設計
+            container.innerHTML = `
+                <div class="p-2 rounded-3xl neu-flat bg-bg border border-shadow space-y-1">
+                    ${tips.map(tip => {
+                        const rId = tip.recipeId !== null ? tip.recipeId : 'null';
+                        const yLink = tip.ytLink ? "'" + tip.ytLink + "'" : 'null';
+                        const fId = tip.fallbackId !== null ? tip.fallbackId : 'null';
+                        return `
+                        <div onclick="handleTipClick(${rId}, ${yLink}, ${fId})" class="rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:brightness-95 active:scale-95 transition-all shadow-sm" style="background-color: ${d.tipBackgroundColor};">
+                            <div class="text-5xl shrink-0">${tip.emoji}</div>
+                            <div class="text-white text-xs font-semibold leading-relaxed flex-1">${T(tip.desc)}</div>
+                            ${(tip.recipeId !== null || tip.ytLink || tip.fallbackId !== null) ? '<i data-lucide="chevron-right" class="w-5 h-5 text-white/50 shrink-0"></i>' : ''}
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            safeCreateIcons(); 
         };
 
         window.toggleTimer = () => {
@@ -899,20 +904,21 @@
             panel.classList.toggle('hidden'); 
         };
 
+        // 🌟 改變食材區格的顏色與按鈕風格，去除黑白生硬感 🌟
         window.renderIngredientGrid = () => {
             const container = document.getElementById('ingredient-grid-container');
             container.innerHTML = INGREDIENT_GRID.map(item => {
                 const isSelected = window.ideaIngredients.includes(item);
-                const bgClass = isSelected ? 'bg-[#e6f4ea] border-green-500 shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-white border-gray-800 hover:bg-gray-50 shadow-[2px_2px_0px_rgba(0,0,0,1)]';
-                const boxColor = isSelected ? 'text-green-500' : 'text-gray-300';
-                const boxIcon = isSelected ? '☑' : '□';
-                
+                const bgClass = isSelected ? 'bg-orange-50 border-orange-400 shadow-md text-orange-600' : 'bg-white border-gray-200 hover:bg-orange-50 hover:border-orange-200 shadow-sm text-gray-600';
+                const boxIcon = isSelected ? '<i data-lucide="check-circle-2" class="w-4 h-4 text-orange-500"></i>' : '<i data-lucide="circle" class="w-4 h-4 text-gray-300"></i>';
+
                 return `
-                <button onclick="toggleGridItem('${item}')" class="flex justify-between items-center px-3 py-2 rounded-xl border-2 transition-all active:scale-95 ${bgClass}">
-                    <span class="text-xs font-bold text-gray-800">${item}</span>
-                    <span class="${boxColor} font-black text-lg">${boxIcon}</span>
+                <button onclick="toggleGridItem('${item}')" class="flex justify-between items-center px-3 py-2 rounded-xl border transition-all active:scale-95 ${bgClass}">
+                    <span class="text-xs font-bold">${item}</span>
+                    <span>${boxIcon}</span>
                 </button>`;
             }).join('');
+            safeCreateIcons();
         };
 
         window.toggleGridItem = (item) => {
@@ -1527,7 +1533,7 @@
             history.scrollTop = history.scrollHeight;
         };
 
-        // 🌟 終極修復：AI 想菜譜對話框 🌟
+        // 🌟 已為 AI 想菜譜重新上色並修復動態標籤生成 🌟
         window.askIdeaAI = async () => {
             playClickSound(); 
             const input = document.getElementById('idea-ai-input');
@@ -1570,7 +1576,6 @@
                 if(window.isAIGenerating) textSpan.innerText = thinkingArray[sentenceIndex];
             }, 1000);
 
-            // 🌟 讓 AI 根據對話動態抓取它推薦的食材 🌟
             let systemContent = "";
             if (STATE.lang === "en") {
                 systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, dynamically extract the real ingredients you just recommended and end your message EXACTLY with this format: [INGREDIENTS: item1, item2] (DO NOT ALWAYS output garlic/onion, output the REAL items). If suggesting recipes, end with EXACTLY: [RECIPES: 🍳dish1, 🥘dish2]. No markdown bolding (**).`;
@@ -1610,14 +1615,14 @@
                 aiText = aiText.replace(ingRegex, '').replace(recRegex, '').trim();
                 textSpan.innerHTML = aiText.replace(/\n/g, '<br>');
 
-                // AI 生成食材方塊 (還原圖3選單)
+                // AI 生成食材方塊（彩色版）
                 if (ingredientsMatch) {
                     const items = ingredientsMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (items.length > 0) {
                         const tagsHtml = items.map(item => {
                             const isActive = window.ideaIngredients.includes(item);
-                            const styleClass = isActive ? "bg-[#e6f4ea] border-green-500" : "bg-white border-gray-800";
-                            return `<button onclick="toggleIdeaIngredientTag('${item}', this)" class="idea-tag-btn border-2 ${styleClass} rounded-xl px-4 py-2 font-bold text-gray-800 text-sm active:scale-95 transition-colors shadow-[2px_2px_0px_rgba(0,0,0,1)]">${item}</button>`;
+                            const styleClass = isActive ? "bg-orange-50 border-orange-400 text-orange-600 shadow-md" : "bg-white border-gray-200 text-gray-600 shadow-sm";
+                            return `<button onclick="toggleIdeaIngredientTag('${item}', this)" class="idea-tag-btn border-2 ${styleClass} rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-colors">${item}</button>`;
                         }).join('');
                         
                         bubbleContainer.innerHTML += `
@@ -1627,7 +1632,7 @@
                     }
                 }
 
-                // AI 生成食譜方塊 (還原圖4 YouTube 卡片)
+                // AI 生成食譜方塊
                 if (recipesMatch) {
                     const dishes = recipesMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (dishes.length > 0) {
@@ -1639,7 +1644,7 @@
                             let cleanDish = dish.replace(emojiRegex, '').trim();
                             
                             return `
-                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(cleanDish + ' 食譜')}', '_blank')" class="w-full flex items-center border-2 border-gray-800 bg-white rounded-xl p-3 shadow-[2px_2px_0px_rgba(0,0,0,1)] active:scale-95 transition-all text-left group">
+                            <button onclick="window.open('https://www.youtube.com/results?search_query=${encodeURIComponent(cleanDish + ' 食譜')}', '_blank')" class="w-full flex items-center border border-gray-200 hover:border-yolk bg-white rounded-xl p-3 shadow-sm active:scale-95 transition-all text-left group">
                                 <span class="text-2xl mr-3 group-hover:scale-110 transition-transform">${emoji}</span>
                                 <span class="font-bold text-gray-800 text-[15px] flex-1 line-clamp-2">${cleanDish}</span>
                             </button>
@@ -1675,12 +1680,10 @@
             const index = window.ideaIngredients.indexOf(item);
             if (index > -1) {
                 window.ideaIngredients.splice(index, 1);
-                btnElement.classList.remove('bg-[#e6f4ea]', 'border-green-500');
-                btnElement.classList.add('bg-white', 'border-gray-800');
+                btnElement.className = 'idea-tag-btn border-2 bg-white border-gray-200 text-gray-600 shadow-sm rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-all';
             } else {
                 window.ideaIngredients.push(item);
-                btnElement.classList.remove('bg-white', 'border-gray-800');
-                btnElement.classList.add('bg-[#e6f4ea]', 'border-green-500');
+                btnElement.className = 'idea-tag-btn border-2 bg-orange-50 border-orange-400 text-orange-600 shadow-md rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-all';
             }
             renderNotepadRows();
             renderIngredientGrid();
@@ -1690,11 +1693,9 @@
             document.querySelectorAll('.idea-tag-btn').forEach(btn => {
                 const itemText = btn.innerText.trim();
                 if (window.ideaIngredients.includes(itemText)) {
-                    btn.classList.remove('bg-white', 'border-gray-800');
-                    btn.classList.add('bg-[#e6f4ea]', 'border-green-500');
+                    btn.className = 'idea-tag-btn border-2 bg-orange-50 border-orange-400 text-orange-600 shadow-md rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-all';
                 } else {
-                    btn.classList.remove('bg-[#e6f4ea]', 'border-green-500');
-                    btn.classList.add('bg-white', 'border-gray-800');
+                    btn.className = 'idea-tag-btn border-2 bg-white border-gray-200 text-gray-600 shadow-sm rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-all';
                 }
             });
         }
