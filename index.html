@@ -565,8 +565,6 @@
             '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸'
         ];
 
-        // ================= 修復與上色區域 =================
-
         window.handleTipClick = (recipeId, ytLink, fallbackId) => {
             playClickSound();
             if (recipeId === null && ytLink === null && fallbackId === null) return; 
@@ -731,8 +729,6 @@
             safeCreateIcons();
         };
 
-        // =================================================================
-
         function init() {
             try {
                 applyLanguage();
@@ -847,7 +843,6 @@
             }
         };
 
-        // 🌟 更新：動態生成便籤紙打洞 🌟
         window.renderNotepadRows = () => {
             const container = document.getElementById('notepad-rows');
             let items = [...window.ideaIngredients];
@@ -855,7 +850,6 @@
             let totalSlots = Math.max(8, Math.ceil(items.length / 2) * 2);
             if (items.length >= totalSlots) totalSlots += 2;
 
-            // 動態根據行數生成洞洞，無限延伸
             const numRows = totalSlots / 2;
             let holesHtml = '<div class="absolute left-[10px] top-[12px] bottom-0 flex flex-col gap-[24px] z-10 pointer-events-none">';
             for(let i = 0; i < numRows; i++) {
@@ -1545,26 +1539,22 @@
             history.scrollTop = history.scrollHeight;
         };
 
-        // 🌟 互斥按鈕的邏輯處理函數 🌟
         window.toggleExclusiveIngredientTag = (item, siblingsStr, btnElement) => {
             playClickSound();
             const siblings = JSON.parse(decodeURIComponent(siblingsStr));
 
-            // 1. 將同群組的其他「或」選項從清單移除（取消選中並從便籤紙上刪除）
             siblings.forEach(sib => {
                 const idx = window.ideaIngredients.indexOf(sib);
                 if (idx > -1) window.ideaIngredients.splice(idx, 1);
             });
 
-            // 2. 切換當前點擊的選項
             const index = window.ideaIngredients.indexOf(item);
             if (index > -1) {
-                window.ideaIngredients.splice(index, 1); // 原本是選中狀態就取消
+                window.ideaIngredients.splice(index, 1);
             } else {
-                window.ideaIngredients.push(item); // 否則加入清單
+                window.ideaIngredients.push(item);
             }
 
-            // 3. 重新渲染畫面
             renderNotepadRows();
             renderIngredientGrid();
             updateTagButtonsUI();
@@ -1651,27 +1641,23 @@
                 aiText = aiText.replace(ingRegex, '').replace(recRegex, '').trim();
                 textSpan.innerHTML = aiText.replace(/\n/g, '<br>');
 
-                // 🌟 AI 生成食材方塊（支援「或」的智能拆分與互斥）🌟
                 if (ingredientsMatch) {
                     const itemsRaw = ingredientsMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (itemsRaw.length > 0) {
                         const tagsHtml = itemsRaw.map(group => {
-                            // 判斷該食材群組中是否包含「或」、「/」、「or」
                             const subItems = group.split(/\s*或\s*|\s*\/\s*|\s+or\s+/i).map(s => s.trim()).filter(s => s);
                             
                             if (subItems.length > 1) {
-                                // 這是一個互斥的「或」群組
                                 return `<div class="flex items-center gap-1 bg-gray-50/80 p-1 rounded-xl border border-gray-200 shadow-sm">
                                     ${subItems.map(item => {
                                         const isActive = window.ideaIngredients.includes(item);
                                         const styleClass = isActive ? "bg-orange-50 border-orange-400 text-orange-600 shadow-md" : "bg-white border-transparent text-gray-500 shadow-sm";
-                                        // 把兄弟選項也傳進去，方便互斥操作
                                         const siblingsStr = encodeURIComponent(JSON.stringify(subItems.filter(s => s !== item)));
-                                        return \`<button onclick="toggleExclusiveIngredientTag('\${item}', '\${siblingsStr}', this)" class="exclusive-tag-btn border-2 \${styleClass} rounded-lg px-3 py-1 font-bold text-[13px] active:scale-95 transition-all">\${item}</button>\`;
+                                        // 這裡的反斜線錯誤已修復！！！
+                                        return `<button onclick="toggleExclusiveIngredientTag('${item}', '${siblingsStr}', this)" class="exclusive-tag-btn border-2 ${styleClass} rounded-lg px-3 py-1 font-bold text-[13px] active:scale-95 transition-all">${item}</button>`;
                                     }).join('<span class="text-[11px] text-gray-400 font-bold px-0.5">或</span>')}
                                 </div>`;
                             } else {
-                                // 這是一個普通的單一選項
                                 const item = subItems[0];
                                 const isActive = window.ideaIngredients.includes(item);
                                 const styleClass = isActive ? "bg-orange-50 border-orange-400 text-orange-600 shadow-md" : "bg-white border-gray-200 text-gray-600 shadow-sm";
@@ -1686,7 +1672,6 @@
                     }
                 }
 
-                // AI 生成食譜方塊
                 if (recipesMatch) {
                     const dishes = recipesMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
                     if (dishes.length > 0) {
@@ -1742,9 +1727,7 @@
             updateTagButtonsUI();
         };
 
-        // 🌟 更新 UI 控制函數以支援兩種按鈕 🌟
         function updateTagButtonsUI() {
-            // 普通按鈕
             document.querySelectorAll('.idea-tag-btn').forEach(btn => {
                 const itemText = btn.innerText.trim();
                 if (window.ideaIngredients.includes(itemText)) {
@@ -1753,7 +1736,6 @@
                     btn.className = 'idea-tag-btn border-2 bg-white border-gray-200 text-gray-600 shadow-sm rounded-xl px-4 py-2 font-bold text-sm active:scale-95 transition-all';
                 }
             });
-            // 互斥群組的按鈕
             document.querySelectorAll('.exclusive-tag-btn').forEach(btn => {
                 const itemText = btn.innerText.trim();
                 if (window.ideaIngredients.includes(itemText)) {
