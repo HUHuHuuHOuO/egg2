@@ -12,7 +12,7 @@
     
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>完美煮蛋定時器 - 國際防當機版</title>
+    <title>完美煮蛋定時器 - AI 智能分類版</title>
 
     <link href="https://cdn.jsdelivr.net/npm/@fontsource/nunito@latest/index.css" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -295,7 +295,7 @@
                     
                     <div class="h-[148px] overflow-y-auto relative hide-scrollbar bg-[#fdfaf2]" id="notepad-scroll-area">
                         <div id="notepad-rows" class="relative z-10 flex flex-col w-full min-h-full">
-                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1602,13 +1602,14 @@
                 if(window.isAIGenerating) textSpan.innerText = thinkingArray[sentenceIndex];
             }, 1000);
 
+            // ✨ 這裡加入了要求 AI 自我判斷分類的系統指令 ✨
             let systemContent = "";
             if (STATE.lang === "en") {
-                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: If suggesting ingredients, dynamically extract the real ingredients you just recommended and end your message EXACTLY with this format: [INGREDIENTS: item1, item2] (DO NOT ALWAYS output garlic/onion, output the REAL items). If suggesting recipes, end with EXACTLY: [RECIPES: 🍳dish1, 🥘dish2]. No markdown bolding (**).`;
+                systemContent = `Act as an expert ${STATE.currentMode === "grandma" ? "loving grandma " : ""}chef. Suggest ingredients OR recipes based on user request. IMPORTANT: 1. Determine if your response leans more towards ingredient suggestion or recipe solution, and end with EXACTLY [TYPE: INGREDIENTS] or [TYPE: RECIPES]. 2. If suggesting ingredients, dynamically extract the real ingredients you just recommended and end your message EXACTLY with this format: [INGREDIENTS: item1, item2] (DO NOT ALWAYS output garlic/onion, output the REAL items). 3. If suggesting recipes, end with EXACTLY: [RECIPES: 🍳dish1, 🥘dish2]. No markdown bolding (**).`;
             } else if (STATE.lang === "yue") {
-                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須根據你真實推薦的內容動態總結，並嚴格輸出如 [INGREDIENTS: 🥑 牛油果, 🍞 多士] 這樣的格式（嚴禁死背大蒜洋蔥，必須給出你講的真實食材）。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍝 奶油蝦仁意粉, 🍳 煎蛋] (必須加emoji)。嚴禁使用Markdown粗體(**)。`;
+                systemContent = `你係${STATE.currentMode === "grandma" ? "錫孫嘅阿婆" : "專業"}大廚。根據用戶要求推薦食材或菜譜。重點：1. 請判斷你嘅回答主要偏向「提供食材」定係「提供食譜」，並喺最後嚴格輸出 [TYPE: 食材] 或 [TYPE: 食譜]。2. 如果推薦食材，最後一行必須根據真實推薦內容動態總結，嚴格輸出如 [INGREDIENTS: 🥑 牛油果, 🍞 多士] (嚴禁死背大蒜洋蔥)。3. 如果推薦菜譜，最後嚴格輸出 [RECIPES: 🍝 奶油蝦仁意粉, 🍳 煎蛋] (必須加emoji)。嚴禁使用Markdown粗體(**)。`;
             } else {
-                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：如果推薦食材，最後一行必須根據你真實推薦的內容動態總結，並嚴格輸出如 [INGREDIENTS: 🥑 酪梨, 🍞 吐司] 這樣的格式（嚴禁永遠固定輸出大蒜和洋蔥，必須給出你剛剛回答的真實食材）。如果推薦菜譜，最後一行必須嚴格輸出 [RECIPES: 🍝 奶油蝦仁義大利麵, 🍳 煎蛋] (必須加emoji)。嚴禁使用Markdown粗體(**)。`;
+                systemContent = `你是${STATE.currentMode === "grandma" ? "疼愛後輩的阿嬤" : "專業"}大廚。根據要求推薦食材或菜譜。重點：1. 請判斷你的回答主要是偏向「提供食材」還是「提供食譜」，並在最後嚴格輸出 [TYPE: 食材] 或 [TYPE: 食譜]。2. 如果推薦食材，最後一行必須根據真實推薦內容動態總結，嚴格輸出如 [INGREDIENTS: 🥑 酪梨, 🍞 吐司] (嚴禁永遠固定輸出大蒜和洋蔥)。3. 如果推薦菜譜，最後嚴格輸出 [RECIPES: 🍝 奶油蝦仁義大利麵, 🍳 煎蛋] (必須加emoji)。嚴禁使用Markdown粗體(**)。`;
             }
 
             try {
@@ -1632,14 +1633,29 @@
                 if(!window.isAIGenerating) return; 
                 clearInterval(window.aiThinkingInterval); 
 
+                // 提取並解析 AI 的分類標籤與內容
+                const typeRegex = /\[TYPE:\s*(.*?)\]/i;
                 const ingRegex = /\[INGREDIENTS:\s*(.*?)\]/i;
                 const recRegex = /\[RECIPES:\s*(.*?)\]/i;
 
+                let typeMatch = typeRegex.exec(aiText);
                 let ingredientsMatch = ingRegex.exec(aiText);
                 let recipesMatch = recRegex.exec(aiText);
 
-                aiText = aiText.replace(ingRegex, '').replace(recRegex, '').trim();
-                textSpan.innerHTML = aiText.replace(/\n/g, '<br>');
+                aiText = aiText.replace(typeRegex, '').replace(ingRegex, '').replace(recRegex, '').trim();
+
+                // ✨ 動態生成美美的 Badge UI ✨
+                let badgeHtml = '';
+                if (typeMatch) {
+                    const typeStr = typeMatch[1].toLowerCase();
+                    const isRecipe = typeStr.includes('食譜') || typeStr.includes('recipe') || typeStr.includes('菜');
+                    const badgeIcon = isRecipe ? '🍳' : '🛒';
+                    const badgeText = isRecipe ? (STATE.lang === 'en' ? 'Recipe Solution' : '食譜推薦') : (STATE.lang === 'en' ? 'Ingredient List' : '食材推薦');
+                    const badgeClass = isRecipe ? 'bg-red-50 text-red-500 border-red-200' : 'bg-green-50 text-green-600 border-green-200';
+                    badgeHtml = `<div class="mb-2 inline-flex items-center gap-1 border px-2 py-0.5 rounded-md text-[10px] font-black tracking-widest ${badgeClass}">${badgeIcon} ${badgeText}</div><br>`;
+                }
+
+                textSpan.innerHTML = badgeHtml + aiText.replace(/\n/g, '<br>');
 
                 if (ingredientsMatch) {
                     const itemsRaw = ingredientsMatch[1].split(/[,、]/).map(s => s.trim()).filter(s => s);
@@ -1653,7 +1669,6 @@
                                         const isActive = window.ideaIngredients.includes(item);
                                         const styleClass = isActive ? "bg-orange-50 border-orange-400 text-orange-600 shadow-md" : "bg-white border-transparent text-gray-500 shadow-sm";
                                         const siblingsStr = encodeURIComponent(JSON.stringify(subItems.filter(s => s !== item)));
-                                        // 這裡的反斜線錯誤已修復！！！
                                         return `<button onclick="toggleExclusiveIngredientTag('${item}', '${siblingsStr}', this)" class="exclusive-tag-btn border-2 ${styleClass} rounded-lg px-3 py-1 font-bold text-[13px] active:scale-95 transition-all">${item}</button>`;
                                     }).join('<span class="text-[11px] text-gray-400 font-bold px-0.5">或</span>')}
                                 </div>`;
