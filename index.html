@@ -302,7 +302,8 @@
                         </div>
 
                         <div id="notepad-rows" class="relative z-10 flex flex-col w-full min-h-full">
-                            </div>
+                            <!-- 透過JS動態插入紅線與橫虛線 -->
+                        </div>
                     </div>
                 </div>
 
@@ -565,9 +566,9 @@
         
         window.ideaIngredients = [];
         const INGREDIENT_GRID = [
-            '🥚 雞蛋', '🥓 培根', '🍅 番茄', '🧅 洋蔥', '🥬 椰菜',
+            '🥚 雞蛋', '🥓 培根', '🍅 番茄', '🧅 洋蔥', '🥬 高麗菜',
             '🧀 起司', '🦐 蝦仁', '🍗 雞肉', '🥩 牛肉', '🐟 魚肉',
-            '🍄 蘑菇', '🥔 土豆', '🥕 胡蘿蔔', '🌶️ 辣椒', '🧄 大蒜',
+            '🍄 蘑菇', '🥔 馬鈴薯', '🥕 胡蘿蔔', '🌶️ 辣椒', '🧄 大蒜',
             '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸',
             '🥛 牛奶', '🍚 米飯', '🍜 麵條', '🧈 奶油', '🌭 香腸'
         ];
@@ -895,11 +896,11 @@
                     <button onclick="removeIdeaIngredient(${index})" class="text-red-400 hover:text-red-500 font-bold active:scale-90 text-xl flex items-center justify-center shrink-0 mb-1" title="刪除">×</button>
                 </div>`;
             } else {
-                // 修正 2：空槽位加入可打字輸入的輸入框，旁邊保留加號可以展開食材清單
+                // 修正 2：移除預設文字，點擊空位或加號即可直接打字
                 return `
-                <div class="w-1/2 flex items-center justify-between text-[14px] ${paddingClass}">
-                    <input type="text" placeholder="手動輸入..." class="flex-1 bg-transparent outline-none text-gray-600 font-bold text-xs w-full mr-1 placeholder-gray-400" onkeypress="if(event.key === 'Enter' && this.value.trim()){ addCustomIngredient(this.value.trim()); this.value=''; }">
-                    <button onclick="toggleIngredientGrid()" class="text-gray-300 hover:text-yolk font-black text-2xl active:scale-90 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 transition-colors shrink-0 mb-1" title="點擊展開食材清單">+</button>
+                <div class="w-1/2 flex items-center justify-between text-[14px] ${paddingClass} cursor-text" onclick="this.querySelector('input').focus()">
+                    <input type="text" class="flex-1 bg-transparent outline-none text-gray-600 font-bold text-xs w-full mr-1" onkeypress="if(event.key === 'Enter' && this.value.trim()){ addCustomIngredient(this.value.trim()); this.value=''; }">
+                    <button onclick="event.stopPropagation(); this.previousElementSibling.focus();" class="text-gray-300 hover:text-yolk font-black text-2xl active:scale-90 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 transition-colors shrink-0 mb-1" title="點擊輸入食材">+</button>
                 </div>`;
             }
         }
